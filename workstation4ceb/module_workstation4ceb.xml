@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_workstation4ceb" default="compile.module.workstation4ceb">
+  <dirname property="module.workstation4ceb.basedir" file="${ant.file.module_workstation4ceb}"/>
+  
+  <property name="module.jdk.home.workstation4ceb" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.workstation4ceb" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.workstation4ceb" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.workstation4ceb" value="-encoding UTF-8 -source 1.5 -target 1.5 ${compiler.args}"/>
+  
+  <property name="workstation4ceb.output.dir" value="${module.workstation4ceb.basedir}/target/classes"/>
+  <property name="workstation4ceb.testoutput.dir" value="${module.workstation4ceb.basedir}/target/test-classes"/>
+  
+  <path id="workstation4ceb.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="workstation4ceb.module.production.classpath">
+    <path refid="${module.jdk.classpath.workstation4ceb}"/>
+    <pathelement location="${basedir}/src/main/resources/lib/javax-usb3-1.3.2.jar"/>
+    <pathelement location="${basedir}/src/main/resources/lib/usb3-ftdi-1.2.0.jar"/>
+  </path>
+  
+  <path id="workstation4ceb.runtime.production.module.classpath">
+    <pathelement location="${workstation4ceb.output.dir}"/>
+    <pathelement location="${basedir}/src/main/resources/lib/javax-usb3-1.3.2.jar"/>
+    <pathelement location="${basedir}/src/main/resources/lib/usb3-ftdi-1.2.0.jar"/>
+  </path>
+  
+  <path id="workstation4ceb.module.classpath">
+    <path refid="${module.jdk.classpath.workstation4ceb}"/>
+    <pathelement location="${workstation4ceb.output.dir}"/>
+    <path refid="library.maven:_junit:junit:4.12.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <pathelement location="${basedir}/src/main/resources/lib/javax-usb3-1.3.2.jar"/>
+    <pathelement location="${basedir}/src/main/resources/lib/usb3-ftdi-1.2.0.jar"/>
+  </path>
+  
+  <path id="workstation4ceb.runtime.module.classpath">
+    <pathelement location="${workstation4ceb.testoutput.dir}"/>
+    <pathelement location="${workstation4ceb.output.dir}"/>
+    <path refid="library.maven:_junit:junit:4.12.classpath"/>
+    <path refid="library.maven:_org.hamcrest:hamcrest-core:1.3.classpath"/>
+    <pathelement location="${basedir}/src/main/resources/lib/javax-usb3-1.3.2.jar"/>
+    <pathelement location="${basedir}/src/main/resources/lib/usb3-ftdi-1.2.0.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.workstation4ceb">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.workstation4ceb">
+    <patternset refid="excluded.from.module.workstation4ceb"/>
+  </patternset>
+  
+  <path id="workstation4ceb.module.sourcepath">
+    <dirset dir="${module.workstation4ceb.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="workstation4ceb.module.test.sourcepath">
+    <dirset dir="${module.workstation4ceb.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.workstation4ceb" depends="compile.module.workstation4ceb.production,compile.module.workstation4ceb.tests" description="Compile module workstation4ceb"/>
+  
+  <target name="compile.module.workstation4ceb.production" depends="register.custom.compilers" description="Compile module workstation4ceb; production classes">
+    <mkdir dir="${workstation4ceb.output.dir}"/>
+    <javac2 destdir="${workstation4ceb.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.workstation4ceb}/javac">
+      <compilerarg line="${compiler.args.workstation4ceb}"/>
+      <bootclasspath refid="workstation4ceb.module.bootclasspath"/>
+      <classpath refid="workstation4ceb.module.production.classpath"/>
+      <src refid="workstation4ceb.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.workstation4ceb"/>
+    </javac2>
+    
+    <copy todir="${workstation4ceb.output.dir}">
+      <fileset dir="${module.workstation4ceb.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.workstation4ceb.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.workstation4ceb.tests" depends="register.custom.compilers,compile.module.workstation4ceb.production" description="compile module workstation4ceb; test classes" unless="skip.tests">
+    <mkdir dir="${workstation4ceb.testoutput.dir}"/>
+    <javac2 destdir="${workstation4ceb.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.workstation4ceb}/javac">
+      <compilerarg line="${compiler.args.workstation4ceb}"/>
+      <bootclasspath refid="workstation4ceb.module.bootclasspath"/>
+      <classpath refid="workstation4ceb.module.classpath"/>
+      <src refid="workstation4ceb.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.workstation4ceb"/>
+    </javac2>
+    
+    <copy todir="${workstation4ceb.testoutput.dir}">
+      <fileset dir="${module.workstation4ceb.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.workstation4ceb" description="cleanup module">
+    <delete dir="${workstation4ceb.output.dir}"/>
+    <delete dir="${workstation4ceb.testoutput.dir}"/>
+  </target>
+</project>
