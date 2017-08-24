@@ -1,6 +1,7 @@
 package pro.filatov.workstation4ceb.form.terminal.graph;
 
 
+import java.awt.*;
 import java.util.LinkedList;
 
 /**
@@ -28,20 +29,36 @@ public class PointData {
         this.pointPackages = new LinkedList<PointPackage>();
     }
 
-    public double scan(){
+    public double getMax(){
+        double Max = getPointPackage(0).getPointValue(0);
         int n, k;
-        double count = 1.0d;
         n = pointPackages.size();
         for (int i = 0; i < n; i++){
             k = getPointPackage(i).getSize();
             for(int j = 0; j < k; j++){
-                if(getPointPackage(i).getPointValue(j) > count) {count = getPointPackage(i).getPointValue(j);}
-                else {
-                    if(-getPointPackage(i).getPointValue(j) > count) {count = -getPointPackage(i).getPointValue(j);}
-                }
+                if(getPointPackage(i).getPointValue(j) > Max) {Max = getPointPackage(i).getPointValue(j);}
             }
         }
-        return count;
+        return Max;
+    }
+
+    public double getMin(){
+        double Min = getPointPackage(0).getPointValue(0);
+        int n, k;
+        n = pointPackages.size();
+        for (int i = 0; i < n; i++){
+            k = getPointPackage(i).getSize();
+            for(int j = 0; j < k; j++){
+                if(getPointPackage(i).getPointValue(j) < Min) {Min = getPointPackage(i).getPointValue(j);}
+            }
+        }
+        return Min;
+    }
+
+    public void clearData(){
+        while (this.getSize() != 0){
+            this.pointPackages.removeLast();
+        }
     }
 
     public void addPointPackage() {
@@ -63,8 +80,8 @@ public class PointData {
         return this.pointPackages.get(i);
     }
 
-    public void addPointStruct(double value, int ind){
-        this.getPointPackage(0).addPointStruct(value, ind);
+    public void addPointStruct(double value, String ind, Color color){
+        this.getPointPackage(0).addPointStruct(value, ind, color);
         if (xZero >= 0){
             this.getPointPackage(0).setTime(System.currentTimeMillis());
             //this.getPointPackage(0).setCycle(System.currentTimeMillis() - xZero);

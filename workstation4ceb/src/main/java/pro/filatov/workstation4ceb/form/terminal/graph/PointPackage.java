@@ -1,7 +1,7 @@
 package pro.filatov.workstation4ceb.form.terminal.graph;
 
 
-
+import java.awt.*;
 import java.util.LinkedList;
 
 /**
@@ -18,8 +18,8 @@ public class PointPackage {
         this.pointList = new LinkedList<PointStruct>();
     }
 
-    public void addPointStruct(double value, int ind){
-        PointStruct point = new PointStruct(value, ind);
+    public void addPointStruct(double value, String ind, Color color){
+        PointStruct point = new PointStruct(value, ind, color);
         this.pointList.add(point);
     }
 
@@ -27,8 +27,12 @@ public class PointPackage {
         return pointList.get(index).getValue();
     }
 
-    public int getPointInd(int index){
+    public String getPointInd(int index){
         return pointList.get(index).getInd();
+    }
+
+    public Color getPointColor(int index){
+        return pointList.get(index).getColor();
     }
 
     public int getSize(){

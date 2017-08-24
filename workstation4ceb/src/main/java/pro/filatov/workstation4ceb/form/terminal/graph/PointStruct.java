@@ -8,18 +8,24 @@ import java.awt.*;
  */
 public class PointStruct {
     private double value;
-    private int ind = -1;
+    private String ind;
+    private Color color;
 
-    public PointStruct(double value, int ind) {
+    public PointStruct(double value, String ind, Color color) {
         this.value = value;
         this.ind = ind;
+        this.color = color;
     }
 
     public double getValue() {
         return value;
     }
 
-    public int getInd() {
+    public String getInd() {
         return ind;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }
