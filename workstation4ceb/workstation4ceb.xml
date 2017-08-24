@@ -55,6 +55,7 @@
     <exclude name="**/?*.clj"/>
     <exclude name="**/?*.aj"/>
   </patternset>
+
   
   <!-- JDK definitions -->
   

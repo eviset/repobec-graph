@@ -4,11 +4,12 @@ package pro.filatov.workstation4ceb.form.terminal;
 import pro.filatov.workstation4ceb.config.ConfProp;
 import pro.filatov.workstation4ceb.config.WorkstationConfig;
 import pro.filatov.workstation4ceb.form.AppFrameHelper;
-import pro.filatov.workstation4ceb.form.terminal.graph.HistoryTextField;
+import pro.filatov.workstation4ceb.form.terminal.graph.*;
 import pro.filatov.workstation4ceb.model.Model;
 import pro.filatov.workstation4ceb.model.fpga.Terminal.*;
 import pro.filatov.workstation4ceb.model.uart.ExchangeModel;
 import pro.filatov.workstation4ceb.model.uart.PacketHelper;
+import pro.filatov.workstation4ceb.form.terminal.graph.GraphFrame;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,14 +26,15 @@ import java.util.Map;
 public class EngineModeFace extends JPanel implements IModeFace {
 
     LeftRadioButton enableKPUtoSHIM, enableSTEP, enableConst;
-    JTextField  uqTextField, udTextField, constInitAngle, deathTextField, nPwmTextField, stepTextField ;
+    JTextField uqTextField, udTextField, constInitAngle, deathTextField, nPwmTextField, stepTextField;
     JTextField oscPotLen, coefFHVsmall, coefFHVLowRate;
     JTextField rateADC, oscZeroLen, coefFHVbig, dcCoef;
     JTextField phaseSpi;
-    JTextField limitUqTextField, speedTethaTextField;
+    JTextField limitUqTextField;
     JCheckBox powerKEYS, enableMatching, errorCorrection, enableCalcUqToShim, enableUMRK, enableSS, enaIntegrator;
     JCheckBox direct_go, is_filtering, scl_to_mosi;
-    JButton savePhases;
+    JButton savePhases, checkGraph;
+    public GraphFrame graphFrame;
     JTextField fhvTOdelitel, porogFHVgoOrTo;
     Indicator errorSpeedIndicatorUmrk;
     Indicator errorSpeedIndicatorSS;
@@ -45,7 +47,8 @@ public class EngineModeFace extends JPanel implements IModeFace {
     List<Integer> selectedPhases;
     List<LeftRadioButton> radioPhases;
     List<JCheckBox> checkboxChanels;
-    JTextField directAngle, resultAngle, angle19bit,  sinGO, cosGO, sinTO, cosTO, fhvGO, fhvTO, prev_go, error_go, calcUq, calcUd;
+    GraphTextField directAngle, resultAngle, angle19bit, cosGO, sinGO, sinTO, cosTO, fhvGO, fhvTO, prev_go, error_go, calcUq, calcUd, speedTethaTextField;
+    //   GraphTextField sinGO;
     List<LeftRadioButton> radioChannels;
     JTextField result_calc_uq;
 
@@ -54,40 +57,44 @@ public class EngineModeFace extends JPanel implements IModeFace {
     ExchangeModel exchangeModel;
     TerminalModel terminalModel;
 
-
+    PointData pointDate;
+    private int ind = 0;
 
 
     public EngineModeFace() {
+
+        pointDate = new PointData(1000);
+
 
         GridBagHelper helper = new GridBagHelper();
         setLayout(new GridBagLayout());
         helper.setWeights(0.33f, 0.06f).fillBoth();
 
-       // ActionListener chooseChannelsActionListener = new ActionListener() {
-           // @Override
-            //public void actionPerformed(ActionEvent e) {
-            //   Phase phase = Phase.getPhase (((LeftRadioButton)e.getSource()).getMnemonic());
-            //  System.out.println("Selected phase " + phase.getNumber() + " "+ phase.name() + ", for channel " + String.valueOf(getSelectedChannel()));
-            // setPhaseForCurrentChannel(phase);
-            //}
+        // ActionListener chooseChannelsActionListener = new ActionListener() {
+        // @Override
+        //public void actionPerformed(ActionEvent e) {
+        //   Phase phase = Phase.getPhase (((LeftRadioButton)e.getSource()).getMnemonic());
+        //  System.out.println("Selected phase " + phase.getNumber() + " "+ phase.name() + ", for channel " + String.valueOf(getSelectedChannel()));
+        // setPhaseForCurrentChannel(phase);
+        //}
         //};
         add(new JLabel("Channels:"), helper.setGridWidth(1).nextRow().get());
-        String [] phasesNames= {"A", "B", "G", "F", "P", "T"};
+        String[] phasesNames = {"A", "B", "G", "F", "P", "T"};
         checkboxChanels = new ArrayList<>();
         //ButtonGroup groupPhases = new ButtonGroup();
-        for(int i=0; i<=5; i++){
+        for (int i = 0; i <= 5; i++) {
             JCheckBox channel = AppFrameHelper.createLeftCheckBox(phasesNames[i] + ":");
             checkboxChanels.add(channel);
             channel.setMnemonic(i);
-          //  channel.addActionL0istener(chooseChannelsActionListener);
+            //  channel.addActionL0istener(chooseChannelsActionListener);
             add(channel, helper.rightColumn().get());
         }
         helper.nextRow();
 
         powerKEYS = AppFrameHelper.createLeftCheckBox("Power keys:");
-        add(powerKEYS, helper.setGridWidth(2). get());
+        add(powerKEYS, helper.setGridWidth(2).get());
         enableUMRK = AppFrameHelper.createLeftCheckBox("Enable UMRK:");
-        add(enableUMRK, helper.rightColumn(2).setGridWidth(2). get());
+        add(enableUMRK, helper.rightColumn(2).setGridWidth(2).get());
         enableSS = AppFrameHelper.createLeftCheckBox("Enable SS:");
         add(enableSS, helper.rightColumn(2).setGridWidth(2).get());
         enaIntegrator = AppFrameHelper.createLeftCheckBox("Integrator:");
@@ -110,8 +117,8 @@ public class EngineModeFace extends JPanel implements IModeFace {
         };
 
 
-        for(int i=0; i <= 5; i++){
-            LeftRadioButton radioButton = new LeftRadioButton(ChannelForPhases.getChannel(i).getShortName()+":");
+        for (int i = 0; i <= 5; i++) {
+            LeftRadioButton radioButton = new LeftRadioButton(ChannelForPhases.getChannel(i).getShortName() + ":");
             radioButton.setMnemonic(i);
             groupChannels.add(radioButton);
             radioButton.addActionListener(chClickListener);
@@ -126,8 +133,8 @@ public class EngineModeFace extends JPanel implements IModeFace {
         ActionListener changePhaseActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Phase phase = Phase.getPhase (((LeftRadioButton)e.getSource()).getMnemonic());
-                System.out.println("Selected phase " + phase.getNumber() + " "+ phase.name() + ", for channel " + String.valueOf(getSelectedChannel()));
+                Phase phase = Phase.getPhase(((LeftRadioButton) e.getSource()).getMnemonic());
+                System.out.println("Selected phase " + phase.getNumber() + " " + phase.name() + ", for channel " + String.valueOf(getSelectedChannel()));
                 setPhaseForCurrentChannel(phase);
             }
         };
@@ -135,22 +142,20 @@ public class EngineModeFace extends JPanel implements IModeFace {
         initPhases();
         radioPhases = new ArrayList<>();
         ButtonGroup groupPhases = new ButtonGroup();
-        for(int i=0; i<=5; i++){
+        for (int i = 0; i <= 5; i++) {
             LeftRadioButton phaseRadio = new LeftRadioButton(String.valueOf(i) + ":");
             radioPhases.add(phaseRadio);
             groupPhases.add(phaseRadio);
             phaseRadio.setMnemonic(i);
             phaseRadio.addActionListener(changePhaseActionListener);
             add(phaseRadio, helper.rightColumn().get());
-            if(selectedPhases.get(0) == i){
+            if (selectedPhases.get(0) == i) {
                 phaseRadio.setSelected(true);
             }
         }
 
 
         //helper.nextRow();
-
-
 
 
         Action savePhasesAction = new AbstractAction() {
@@ -160,9 +165,10 @@ public class EngineModeFace extends JPanel implements IModeFace {
             }
         };
 
+
         savePhases = new JButton(savePhasesAction);
         savePhases.setText("Save Phase");
-        savePhases.setMargin(new Insets(0,0,0,0));
+        savePhases.setMargin(new Insets(0, 0, 0, 0));
         savePhases.setMaximumSize(new Dimension(30, 10));
         savePhases.setAction(savePhasesAction);
 
@@ -170,9 +176,9 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
 
         textFieldsPhases = new HashMap<>();
-        for(int i=0; i<=1; i++){
-            JTextField textPhaseConst = new JTextField(WorkstationConfig.getProperty(i == 0 ? ConfProp.PHASES1 : ConfProp.PHASES2 ));
-            add(AppFrameHelper.getTextFieldLabeled(textPhaseConst, "PHASE1:", 60,40), helper.rightColumn().rightColumn().get());
+        for (int i = 0; i <= 1; i++) {
+            JTextField textPhaseConst = new JTextField(WorkstationConfig.getProperty(i == 0 ? ConfProp.PHASES1 : ConfProp.PHASES2));
+            add(AppFrameHelper.getTextFieldLabeled(textPhaseConst, "PHASE1:", 60, 40), helper.rightColumn().rightColumn().get());
             textFieldsPhases.put(DataRamWord.getDataRamWord(i), textPhaseConst);
         }
 
@@ -180,15 +186,15 @@ public class EngineModeFace extends JPanel implements IModeFace {
         nPwmTextField = new JTextField("1950");
         deathTextField = new JTextField("350");
         limitUqTextField = new JTextField("150");
-        add(AppFrameHelper.getTextFieldLabeled(nPwmTextField, "N_PWM:", 60,40), helper.setGridWidth(2).nextRow().get());
-        add(AppFrameHelper.getTextFieldLabeled(deathTextField, "DEATH:", 60,40), helper.rightColumn().rightColumn().get());
-        add(AppFrameHelper.getTextFieldLabeled(limitUqTextField, "LIMIT:", 60,40), helper.rightColumn(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(nPwmTextField, "N_PWM:", 60, 40), helper.setGridWidth(2).nextRow().get());
+        add(AppFrameHelper.getTextFieldLabeled(deathTextField, "DEATH:", 60, 40), helper.rightColumn().rightColumn().get());
+        add(AppFrameHelper.getTextFieldLabeled(limitUqTextField, "LIMIT:", 60, 40), helper.rightColumn(2).get());
 
         uqTextField = new JTextField("200");
         udTextField = new JTextField("0");
 
-        add(AppFrameHelper.getTextFieldLabeled(uqTextField, "Uq:", 60,40), helper.setGridWidth(2).nextRow().get());
-        add(AppFrameHelper.getTextFieldLabeled(udTextField, "Ud:", 60,40), helper.rightColumn().rightColumn().get());
+        add(AppFrameHelper.getTextFieldLabeled(uqTextField, "Uq:", 60, 40), helper.setGridWidth(2).nextRow().get());
+        add(AppFrameHelper.getTextFieldLabeled(udTextField, "Ud:", 60, 40), helper.rightColumn().rightColumn().get());
 
         oscPotLen = new JTextField("1070");
         oscZeroLen = new JTextField("30625");
@@ -196,24 +202,22 @@ public class EngineModeFace extends JPanel implements IModeFace {
         //coefFHVLowRate = new JTextField("400");
 
 
-        add(AppFrameHelper.getTextFieldLabeled(oscPotLen, "TO SMALL:", 100,50), helper.setGridWidth(3).nextRow().get());
-        add(AppFrameHelper.getTextFieldLabeled(oscZeroLen, "TO BIG:",  100,50), helper.rightColumn(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(oscPotLen, "TO SMALL:", 100, 50), helper.setGridWidth(3).nextRow().get());
+        add(AppFrameHelper.getTextFieldLabeled(oscZeroLen, "TO BIG:", 100, 50), helper.rightColumn(3).get());
 
         coefFHVsmall = new JTextField("1070");
         coefFHVbig = new JTextField("30625");
 
-        add(AppFrameHelper.getTextFieldLabeled(coefFHVsmall, "FHV small:", 100,50), helper.setGridWidth(3).nextRow().get());
-        add(AppFrameHelper.getTextFieldLabeled(coefFHVbig, "FHV big:",  100,50), helper.rightColumn(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(coefFHVsmall, "FHV small:", 100, 50), helper.setGridWidth(3).nextRow().get());
+        add(AppFrameHelper.getTextFieldLabeled(coefFHVbig, "FHV big:", 100, 50), helper.rightColumn(3).get());
 
         rateADC = new JTextField("39");
 
         phaseSpi = new JTextField("103");
         dcCoef = new JTextField("20000000");
-        add(AppFrameHelper.getTextFieldLabeled(rateADC, "rate ADC:",  100,50), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(phaseSpi, "phase SPI:",  100,50), helper.rightColumn(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(dcCoef, "DC COEF:",  100,50), helper.rightColumn(2).get());
-
-
+        add(AppFrameHelper.getTextFieldLabeled(rateADC, "rate ADC:", 100, 50), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(phaseSpi, "phase SPI:", 100, 50), helper.rightColumn(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(dcCoef, "DC COEF:", 100, 50), helper.rightColumn(2).get());
 
 
         enableMatching = AppFrameHelper.createLeftCheckBox("EnaMatching:");
@@ -223,7 +227,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
         is_filtering.setSelected(true);
         scl_to_mosi = AppFrameHelper.createLeftCheckBox("mosi_scl");
         clearSpeedError = AppFrameHelper.createLeftCheckBox("clearSpeedError");
-        add(enableMatching, helper.nextRow().setGridWidth(2). get());
+        add(enableMatching, helper.nextRow().setGridWidth(2).get());
         add(errorCorrection, helper.rightColumn(2).get());
         add(direct_go, helper.rightColumn(2).get());
         add(is_filtering, helper.rightColumn(2).get());
@@ -233,16 +237,14 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
         porogFHVgoOrTo = new JTextField("127");
         fhvTOdelitel = new JTextField("0");
-        add(AppFrameHelper.getTextFieldLabeled(porogFHVgoOrTo, "porog fhv:",  100,50), helper.rightColumn(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(fhvTOdelitel, "fhv to del:",  100,50), helper.rightColumn(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(porogFHVgoOrTo, "porog fhv:", 100, 50), helper.rightColumn(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(fhvTOdelitel, "fhv to del:", 100, 50), helper.rightColumn(2).get());
 
         ButtonGroup groupModeKPU = new ButtonGroup();
 
         enableKPUtoSHIM = new LeftRadioButton("EnaKPUtoSHIM:");
         enableSTEP = new LeftRadioButton("Step Mode:");
         enableConst = new LeftRadioButton("Const Mode:");
-
-
 
 
         enableConst.addActionListener(new ActionListener() {
@@ -277,12 +279,12 @@ public class EngineModeFace extends JPanel implements IModeFace {
         stepTextField = new JTextField("2");
         constInitAngle = new JTextField("0");
 
-        enableCalcUqToShim =  AppFrameHelper.createLeftCheckBox("Enable Calc Uq:");
+        enableCalcUqToShim = AppFrameHelper.createLeftCheckBox("Enable Calc Uq:");
         enableKPUtoSHIM.setSelected(true);
         add(enableSTEP, helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(stepTextField , "Step:", 100,60), helper.rightColumn(2).setGridWidth(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(stepTextField, "Step:", 100, 60), helper.rightColumn(2).setGridWidth(3).get());
         add(enableConst, helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(constInitAngle, "Angle:", 100,60), helper.rightColumn(2).setGridWidth(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(constInitAngle, "Angle:", 100, 60), helper.rightColumn(2).setGridWidth(3).get());
         add(enableKPUtoSHIM, helper.nextRow().setGridWidth(2).get());
         constInitAngle.setEnabled(false);
         add(enableCalcUqToShim, helper.nextRow().setGridWidth(2).get());
@@ -305,61 +307,70 @@ public class EngineModeFace extends JPanel implements IModeFace {
         add(stopCapturingRadio, helper.nextRow().setGridWidth(1).get());
         add(runCapturingRadio, helper.rightColumn().get());
         add(clearStorageRadio, helper.rightColumn().get());
-        add(AppFrameHelper.getTextFieldLabeled(captureDelayTextField, "over cycle:",  100,50),helper.rightColumn().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(captureDelayTextField, "over cycle:", 100, 50), helper.rightColumn().setGridWidth(2).get());
 
-        sinGO = createNotEditableTextField();
-        cosGO = createNotEditableTextField();
-        sinTO = createNotEditableTextField();
-        cosTO = createNotEditableTextField();
+        sinGO = new GraphTextField(ind); ind++;//setIndex(sinGO);
+        cosGO = new GraphTextField(ind); ind++;//setIndex(cosGO);
 
-        angle19bit = createNotEditableTextField();
+        sinTO = new GraphTextField(ind); ind++;//setIndex(sinTO);
+        cosTO = new GraphTextField(ind); ind++;//setIndex(cosTO);
 
-
-        resultAngle = createNotEditableTextField();
-        directAngle = createNotEditableTextField();
-        result_calc_uq = createNotEditableTextField();
-
-        fhvGO= createNotEditableTextField();
-        fhvTO= createNotEditableTextField();
-        prev_go = createNotEditableTextField();
-        error_go = createNotEditableTextField();
-        calcUq = createNotEditableTextField();
-        calcUd = createNotEditableTextField();
-        speedTethaTextField = createNotEditableTextField();
-
-        add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60,40), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());
-
-        add(AppFrameHelper.getTextFieldLabeled(sinTO, "SIN TO:", 60,40), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(cosTO, "COS TO:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());
-
-        add(AppFrameHelper.getTextFieldLabeled(fhvGO, "FHV GO:", 60,40), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(fhvTO, "FHV TO:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());
-
-        add(AppFrameHelper.getTextFieldLabeled(prev_go, "prev_go:", 60,40), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(error_go, "error_go:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());
-
-        add(AppFrameHelper.getTextFieldLabeled(calcUq, "correct:", 60,40), helper.nextRow().setGridWidth(2).get());
-        add(AppFrameHelper.getTextFieldLabeled(calcUd, "calc Ud", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());
+        angle19bit = new GraphTextField(ind); ind++;//setIndex(angle19bit);
 
 
-        add(AppFrameHelper.getTextFieldLabeled(directAngle, "DIRECT_ANGLE:", 130,60), helper.nextRow().setGridWidth(3).get());
-        add(AppFrameHelper.getTextFieldLabeled(resultAngle, "RESULT_ANGLE:", 130,60), helper.rightColumn(3).setGridWidth(3).get());
+        resultAngle = new GraphTextField(ind); ind++;//setIndex(resultAngle);
+        directAngle = new GraphTextField(ind); ind++;//setIndex(directAngle);
+        result_calc_uq = new GraphTextField(ind); ind++;
+
+        fhvGO = new GraphTextField(ind); ind++;
+        fhvTO = new GraphTextField(ind); ind++;
+        prev_go = new GraphTextField(ind); ind++;
+        error_go = new GraphTextField(ind); ind++;
+        calcUq = new GraphTextField(ind); ind++;
+        calcUd = new GraphTextField(ind); ind++;
+        speedTethaTextField = new GraphTextField(ind); ind++;
+
+        checkGraph = new JButton("Graph");
+
+        add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60, 40), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
+
+        add(AppFrameHelper.getTextFieldLabeled(sinTO, "SIN TO:", 60, 40), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(cosTO, "COS TO:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
+
+        add(AppFrameHelper.getTextFieldLabeled(fhvGO, "FHV GO:", 60, 40), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(fhvTO, "FHV TO:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
+
+        add(AppFrameHelper.getTextFieldLabeled(prev_go, "prev_go:", 60, 40), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(error_go, "error_go:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
+
+        add(AppFrameHelper.getTextFieldLabeled(calcUq, "correct:", 60, 40), helper.nextRow().setGridWidth(2).get());
+        add(AppFrameHelper.getTextFieldLabeled(calcUd, "calc Ud", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
 
 
+        add(AppFrameHelper.getTextFieldLabeled(directAngle, "DIRECT_ANGLE:", 130, 60), helper.nextRow().setGridWidth(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(resultAngle, "RESULT_ANGLE:", 130, 60), helper.rightColumn(3).setGridWidth(3).get());
 
-        add(AppFrameHelper.getTextFieldLabeled(angle19bit, "Angle 19bit:", 130,60), helper.nextRow().setGridWidth(3).get());
-        add(AppFrameHelper.getTextFieldLabeled(result_calc_uq, "res calc Uq", 130,60), helper.rightColumn(3).setGridWidth(3).get());
 
-        add(AppFrameHelper.getTextFieldLabeled(speedTethaTextField, "Speed:", 130,60), helper.nextRow().setGridWidth(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(angle19bit, "Angle 19bit:", 130, 60), helper.nextRow().setGridWidth(3).get());
+        add(AppFrameHelper.getTextFieldLabeled(result_calc_uq, "res calc Uq", 130, 60), helper.rightColumn(3).setGridWidth(3).get());
+
+        add(AppFrameHelper.getTextFieldLabeled(speedTethaTextField, "Speed:", 130, 60), helper.nextRow().setGridWidth(3).get());
 
 
         add(AppFrameHelper.getLumpLabeled(errorSpeedIndicatorUmrk = new Indicator(), ""), helper.rightColumn(3).setGridWidth(1).get());
-        add(AppFrameHelper.getLumpLabeled(errorSpeedIndicatorSS= new Indicator(), ""), helper.rightColumn(3).setGridWidth(1).get());
-        HistoryTextField historyTextField = new HistoryTextField("history", 80,80);
+        add(AppFrameHelper.getLumpLabeled(errorSpeedIndicatorSS = new Indicator(), ""), helper.rightColumn(3).setGridWidth(1).get());
+        HistoryTextField historyTextField = new HistoryTextField("history", 80, 80);
         add(historyTextField, helper.nextRow().setGridWidth(3).get());
-
-
+        add(checkGraph, helper.rightColumn(3).setGridWidth(1).get());
+        checkGraph.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (checkGraph.isSelected()){
+                    //graphFrame = new GraphFrame(pointDate);
+                }
+            }
+        });
 
         add(AppFrameHelper.createPanel("free"), helper.nextRow().setGridWidth(7).setWeights(0.5f, 0.9f).get());
 
@@ -372,17 +383,16 @@ public class EngineModeFace extends JPanel implements IModeFace {
     }
 
 
-
-
-    private JTextField createNotEditableTextField(){
+    private JTextField createNotEditableTextField() {
         JTextField textField = new JTextField();
         textField.setEditable(false);
+        //add all NotEditableTextField in collection
         return textField;
     }
 
 
-    private String[] createRowNameData(String name){
-        String [] rowData  = new String[7];
+    private String[] createRowNameData(String name) {
+        String[] rowData = new String[7];
         rowData[0] = name;
         return rowData;
     }
@@ -390,75 +400,77 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
     @Override
     public byte[] createRequest() {
-        byte [] packet = new byte[0];
+        byte[] packet = new byte[0];
 
         packet = PacketHelper.addDataToPacket(packet, PacketHelper.i2b(0x5000));
 
-        Integer nPwm   = Integer.parseInt(nPwmTextField.getText());
+        Integer nPwm = Integer.parseInt(nPwmTextField.getText());
         packet = PacketHelper.addDataToPacket(packet, nPwm);
 
-        Integer death  = Integer.parseInt(deathTextField.getText());
+        Integer death = Integer.parseInt(deathTextField.getText());
         packet = PacketHelper.addDataToPacket(packet, death);
 
 
-        boolean [] arg0  = {
+        boolean[] arg0 = {
                 checkboxChanels.get(0).isSelected(),
                 checkboxChanels.get(1).isSelected(),
                 checkboxChanels.get(2).isSelected()
         };
-        packet = PacketHelper.addDataToPacket(packet, powerKEYS.isSelected() ? PacketHelper.bool2byte(arg0) : (byte)0x00);
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
-        boolean [] arg1  = {
+        packet = PacketHelper.addDataToPacket(packet, powerKEYS.isSelected() ? PacketHelper.bool2byte(arg0) : (byte) 0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
+        boolean[] arg1 = {
                 checkboxChanels.get(3).isSelected(),
                 checkboxChanels.get(4).isSelected(),
                 checkboxChanels.get(5).isSelected()
         };
 
-        packet = PacketHelper.addDataToPacket(packet, powerKEYS.isSelected() ? PacketHelper.bool2byte(arg1) : (byte)0x00);
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
+        packet = PacketHelper.addDataToPacket(packet, powerKEYS.isSelected() ? PacketHelper.bool2byte(arg1) : (byte) 0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
 
 
         packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(textFieldsPhases.get(DataRamWord.FIRST).getText(), 16));
-        packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(textFieldsPhases.get(DataRamWord.SECOND).getText(),16));
+        packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(textFieldsPhases.get(DataRamWord.SECOND).getText(), 16));
 
-        packet = PacketHelper.addDataToPacket(packet,  getSelectedChannel().getNumber());
+        packet = PacketHelper.addDataToPacket(packet, getSelectedChannel().getNumber());
 
         packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(uqTextField.getText()));
         packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(udTextField.getText()));
 
-        boolean [] argMatching = {  enableMatching.isSelected(), errorCorrection.isSelected(), direct_go.isSelected(), clearSpeedError.isSelected()};
+        boolean[] argMatching = {enableMatching.isSelected(), errorCorrection.isSelected(), direct_go.isSelected(), clearSpeedError.isSelected()};
         packet = PacketHelper.addDataToPacket(packet, PacketHelper.bool2byte(argMatching));
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
 
         byte modeKPUint;
 
-        if(!enableKPUtoSHIM.isSelected()) {
+        if (!enableKPUtoSHIM.isSelected()) {
 
             boolean[] modeKPU = {enableSTEP.isSelected(),
                     enableConst.isSelected()};
             modeKPUint = PacketHelper.bool2byte(modeKPU);
-        }else{{
-            modeKPUint = (byte)0x00;
-        }}
+        } else {
+            {
+                modeKPUint = (byte) 0x00;
+            }
+        }
         packet = PacketHelper.addDataToPacket(packet, modeKPUint);
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
 
         Integer step = Integer.parseInt(stepTextField.getText());
         packet = PacketHelper.addDataToPacket(packet, step);
 
-        if(step < 0){
-            byte b  = (byte)0xFF;
+        if (step < 0) {
+            byte b = (byte) 0xFF;
             packet = PacketHelper.addDataToPacket(packet, b);
             packet = PacketHelper.addDataToPacket(packet, b);
         } else {
-            byte b  = (byte)0x00;
+            byte b = (byte) 0x00;
             packet = PacketHelper.addDataToPacket(packet, b);
             packet = PacketHelper.addDataToPacket(packet, b);
         }
 
 
         Integer porogFHVgoOrToInt = Integer.parseInt(porogFHVgoOrTo.getText());
-        packet = PacketHelper.addDataToPacket(packet, porogFHVgoOrToInt );
+        packet = PacketHelper.addDataToPacket(packet, porogFHVgoOrToInt);
 
         Integer fhvTOdelitelInt = Integer.parseInt(fhvTOdelitel.getText());
         packet = PacketHelper.addDataToPacket(packet, fhvTOdelitelInt);
@@ -474,17 +486,16 @@ public class EngineModeFace extends JPanel implements IModeFace {
         */
 
 
-
-        boolean [] argEnaCalcUqToShim = { enableCalcUqToShim.isSelected()};
+        boolean[] argEnaCalcUqToShim = {enableCalcUqToShim.isSelected()};
         packet = PacketHelper.addDataToPacket(packet, PacketHelper.bool2byte(argEnaCalcUqToShim));
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
 
 
         Integer rateAdcInt = Integer.parseInt(rateADC.getText());
-        if(is_filtering.isSelected()){
+        if (is_filtering.isSelected()) {
             rateAdcInt = rateAdcInt | 0x4000;
         }
-        if(scl_to_mosi.isSelected()){
+        if (scl_to_mosi.isSelected()) {
             rateAdcInt = rateAdcInt | 0x2000;
         }
         packet = PacketHelper.addDataToPacket(packet, rateAdcInt);
@@ -494,33 +505,31 @@ public class EngineModeFace extends JPanel implements IModeFace {
         packet = PacketHelper.addDataToPacket(packet, Integer.parseInt(coefFHVbig.getText()));
 
 
-
         Integer i_coef1 = Integer.valueOf(dcCoef.getText().substring(4, 8), 16);
         packet = PacketHelper.addDataToPacket(packet, i_coef1);
 
         Integer i_coef2 = Integer.valueOf(dcCoef.getText().substring(0, 4), 16);
         packet = PacketHelper.addDataToPacket(packet, i_coef2);
         int bup;
-        if (enableUMRK.isSelected() & !enableSS.isSelected())
-        {
-            bup =  0x01;
-        } else if(enableSS.isSelected() & !enableUMRK.isSelected()){
+        if (enableUMRK.isSelected() & !enableSS.isSelected()) {
+            bup = 0x01;
+        } else if (enableSS.isSelected() & !enableUMRK.isSelected()) {
             bup = 0x02;
-        } else if(enableSS.isSelected() & enableUMRK.isSelected()) {
+        } else if (enableSS.isSelected() & enableUMRK.isSelected()) {
             bup = 0x03;
         } else {
             bup = 0x00;
         }
 
-        if(enaIntegrator.isSelected()){
+        if (enaIntegrator.isSelected()) {
             bup = bup | 0x04;
         }
-        packet = PacketHelper.addDataToPacket(packet, (byte)bup);
-        packet = PacketHelper.addDataToPacket(packet, (byte)0x00);
+        packet = PacketHelper.addDataToPacket(packet, (byte) bup);
+        packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
 
-        if(runCapturingRadio.isSelected()) {
+        if (runCapturingRadio.isSelected()) {
             packet = PacketHelper.addDataToPacket(packet, (byte) 0x01);
-        }else if(clearStorageRadio.isSelected()){
+        } else if (clearStorageRadio.isSelected()) {
             packet = PacketHelper.addDataToPacket(packet, (byte) 0x02);
         } else {
             packet = PacketHelper.addDataToPacket(packet, (byte) 0x00);
@@ -540,41 +549,37 @@ public class EngineModeFace extends JPanel implements IModeFace {
     }
 
 
-
-    private void initPhases(){
+    private void initPhases() {
         selectedPhases = new ArrayList<>();
-        for(ChannelForPhases channel : ChannelForPhases.values()){
-            String strPhase = WorkstationConfig.getProperty(channel.getDataRamWord() ==  DataRamWord.FIRST ? ConfProp.PHASES1 : ConfProp.PHASES2 );
-            if(strPhase  == null){
+        for (ChannelForPhases channel : ChannelForPhases.values()) {
+            String strPhase = WorkstationConfig.getProperty(channel.getDataRamWord() == DataRamWord.FIRST ? ConfProp.PHASES1 : ConfProp.PHASES2);
+            if (strPhase == null) {
                 strPhase = "000";
             }
             Integer intPhases = Integer.parseInt(strPhase, 16);
-            selectedPhases.add((intPhases & channel.getPhaseMask() )>> channel.getShiftValue());
+            selectedPhases.add((intPhases & channel.getPhaseMask()) >> channel.getShiftValue());
         }
     }
 
 
-
-
-
-    private void setPhaseForCurrentChannel(Phase phase){
+    private void setPhaseForCurrentChannel(Phase phase) {
         ChannelForPhases channel = getSelectedChannel();
         DataRamWord numWordRam = channel.getDataRamWord();
         JTextField textFieldPhase = textFieldsPhases.get(numWordRam);
-        Integer hexValue  = Integer.parseInt(textFieldPhase.getText(), 16);
+        Integer hexValue = Integer.parseInt(textFieldPhase.getText(), 16);
         Integer newPhase = phase.getNumber();
-        hexValue = ((hexValue & ~channel.getPhaseMask()) |  newPhase << channel.getShiftValue() )| 0x1000;
+        hexValue = ((hexValue & ~channel.getPhaseMask()) | newPhase << channel.getShiftValue()) | 0x1000;
         textFieldPhase.setText(hexValue.toHexString(hexValue).substring(1));
         selectedPhases.set(channel.getNumber(), phase.getNumber());
     }
 
-    private Integer getPhaseForChannel(Integer channel){
+    private Integer getPhaseForChannel(Integer channel) {
         return null;
     }
 
-    private ChannelForPhases getSelectedChannel(){
-        for(LeftRadioButton  radio : radioChannels){
-            if(radio.isSelected()){
+    private ChannelForPhases getSelectedChannel() {
+        for (LeftRadioButton radio : radioChannels) {
+            if (radio.isSelected()) {
                 return ChannelForPhases.getChannel(radio.getMnemonic());
             }
         }
@@ -582,27 +587,29 @@ public class EngineModeFace extends JPanel implements IModeFace {
     }
 
 
-
-
-    private void clearSelectPhase(){
-        for(LeftRadioButton  radio : radioPhases){
+    private void clearSelectPhase() {
+        for (LeftRadioButton radio : radioPhases) {
             radio.setSelected(false);
         }
     }
 
 
-
     @Override
     public void refreshDataOnFace() {
 
-        byte []response = exchangeModel.getResponse();
-        if(response.length  < 10 ){
+        byte[] response = exchangeModel.getResponse();
+        if (response.length < 10) {
             System.out.println("Length response from CEB are SMALL ");
             return;
         }
-        byte []resp  =PacketHelper.extractCebPacket(exchangeModel.getResponse());
+        byte[] resp = PacketHelper.extractCebPacket(response);
 
-        sinGO.setText(getSensor(resp[2], resp[3]));
+        pointDate.addPointPackage();
+
+        Double sin_go_data = getMyDataFromCeb16bit(resp[1], resp[2]);
+        sinGO.addPoint(String.valueOf(sin_go_data), sin_go_data);
+        // sinGO.setText(getSensor(resp[2], resp[3]));
+        sinGO.setTextCheck(getSensor(resp[2], resp[3]), pointDate.getPointPackage(0));
         cosGO.setText(getSensor(resp[4], resp[5]));
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
@@ -616,7 +623,6 @@ public class EngineModeFace extends JPanel implements IModeFace {
         resultAngle.setText(PacketHelper.getUnsignedWord16bit(resp[20], resp[21]));
         calcUq.setText(PacketHelper.getUnsignedWord12bit(resp[22], resp[23]));
         calcUd.setText(PacketHelper.getUnsignedWord12bit(resp[24], resp[25]));
-
 
 
         angle19bit.setText(PacketHelper.getAngle19(resp[26], resp[27], resp[28]));
@@ -633,9 +639,22 @@ public class EngineModeFace extends JPanel implements IModeFace {
         this.revalidate();
     }
 
-    private String getSensor(byte low_byte, byte high_byte){
-        return  PacketHelper.getSensor(low_byte, high_byte);
+
+    private Double getMyDataFromCeb16bit(byte b1, byte b2){
+
+
+
+        return 0.1d;
     }
 
+
+    private String getSensor(byte low_byte, byte high_byte) {return PacketHelper.getSensor(low_byte, high_byte);}
+
+   /* private void setIndex(GraphTextField cur){
+        cur.setIndex(ind);
+        ind++;
+        Integer fff = 0;
+        ind = fff;
+    }*/
 
 }

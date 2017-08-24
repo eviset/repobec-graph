@@ -3,13 +3,14 @@ package pro.filatov.workstation4ceb.form.terminal;
 
 import pro.filatov.workstation4ceb.config.ConfProp;
 import pro.filatov.workstation4ceb.config.WorkstationConfig;
-import pro.filatov.workstation4ceb.form.AppFrame;
 import pro.filatov.workstation4ceb.form.AppFrameHelper;
+import pro.filatov.workstation4ceb.form.terminal.graph.GraphTextField;
 import pro.filatov.workstation4ceb.form.terminal.graph.HistoryTextField;
 import pro.filatov.workstation4ceb.model.Model;
 import pro.filatov.workstation4ceb.model.fpga.Terminal.*;
 import pro.filatov.workstation4ceb.model.uart.ExchangeModel;
 import pro.filatov.workstation4ceb.model.uart.PacketHelper;
+import pro.filatov.workstation4ceb.form.terminal.graph.GraphTextField;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +47,7 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
     List<Integer> selectedPhases;
     List<LeftRadioButton> radioPhases;
     List<JCheckBox> checkboxChanels;
-    JTextField directAngle, resultAngle, angle19bit,  sinGO, cosGO, sinTO, cosTO, fhvGO, fhvTO, ia, ib, calcUq, calcUd;
+    GraphTextField directAngle, resultAngle, angle19bit,  sinGO, cosGO, sinTO, cosTO, fhvGO, fhvTO, ia, ib, calcUq, calcUd;
     List<LeftRadioButton> radioChannels;
     JTextField result_calc_uq;
 
@@ -57,6 +58,7 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
 
     JTextField AngleF, AngleP, AngleT;
     JCheckBox EnaReduction;
+    private int ind = 0;
 
 
     public PreciseReductionFace() {
@@ -344,25 +346,25 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
         add(clearStorageRadio, helper.rightColumn().get());
         add(AppFrameHelper.getTextFieldLabeled(captureDelayTextField, "over cycle:",  100,50),helper.rightColumn().setGridWidth(2).get());
 
-        sinGO = createNotEditableTextField();
-        cosGO = createNotEditableTextField();
-        sinTO = createNotEditableTextField();
-        cosTO = createNotEditableTextField();
+        sinGO = new GraphTextField(ind); ind++;
+        cosGO = new GraphTextField(ind); ind++;
+        sinTO = new GraphTextField(ind); ind++;
+        cosTO = new GraphTextField(ind); ind++;
 
-        angle19bit = createNotEditableTextField();
+        angle19bit = new GraphTextField(ind); ind++;
 
 
-        resultAngle = createNotEditableTextField();
-        directAngle = createNotEditableTextField();
-        result_calc_uq = createNotEditableTextField();
+        resultAngle = new GraphTextField(ind); ind++;
+        directAngle = new GraphTextField(ind); ind++;
+        result_calc_uq = new GraphTextField(ind); ind++;
 
-        fhvGO= createNotEditableTextField();
-        fhvTO= createNotEditableTextField();
-        ia= createNotEditableTextField();
-        ib= createNotEditableTextField();
-        calcUq = createNotEditableTextField();
-        calcUd = createNotEditableTextField();
-        speedTethaTextField = createNotEditableTextField();
+        fhvGO= new GraphTextField(ind); ind++;
+        fhvTO= new GraphTextField(ind); ind++;
+        ia= new GraphTextField(ind); ind++;
+        ib= new GraphTextField(ind); ind++;
+        calcUq = new GraphTextField(ind); ind++;
+        calcUd = new GraphTextField(ind); ind++;
+        speedTethaTextField = createNotEditableTextField(); ind++;
 
         add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60,40), helper.nextRow().setGridWidth(2).get());
         add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());

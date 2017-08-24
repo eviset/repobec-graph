@@ -87,7 +87,10 @@ public class ExchangeModel {
                             System.out.println("Error for sending packet. This packet will be ignored! ");
                             return;
                         }
+
                         response = Model.getUartModel().getResponse();
+                       // response  = new byte [60];
+
                         terminalModel.refreshCurrentFace();
                         if (!terminalModel.getRepeatingCebExchange()) {
                             terminalModel.setRunCurrentMode(false);

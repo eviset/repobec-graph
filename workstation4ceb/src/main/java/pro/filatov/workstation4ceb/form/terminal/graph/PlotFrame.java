@@ -17,6 +17,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Random;
 
+import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLEventListener;
+import javax.media.opengl.GLProfile;
+import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.GL2;
+
 /**
  * Created by user on 08.02.2017.
  */
@@ -45,6 +52,8 @@ public class PlotFrame extends JFrame {
     private int x_value = 0;
     private XYPlot plot;
     private InteractivePanel interactivePanel;
+
+
 
 
 
@@ -176,7 +185,7 @@ public class PlotFrame extends JFrame {
 
         };
 
-        updateTimer = new Timer(5, taskPerformer);
+        updateTimer = new Timer(1, taskPerformer);
         updateTimer.start();
         setSize(getPreferredSize());
         setVisible(true);

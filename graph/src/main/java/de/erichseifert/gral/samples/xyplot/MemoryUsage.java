@@ -35,10 +35,7 @@ import java.text.DecimalFormat;
 
 import javax.swing.*;
 
-import de.erichseifert.gral.data.Column;
-import de.erichseifert.gral.data.DataSeries;
-import de.erichseifert.gral.data.DataSource;
-import de.erichseifert.gral.data.DataTable;
+import de.erichseifert.gral.data.*;
 import de.erichseifert.gral.data.statistics.Statistics;
 import de.erichseifert.gral.samples.ExamplePanel;
 import de.erichseifert.gral.graphics.Insets2D;
@@ -141,7 +138,7 @@ public class MemoryUsage extends ExamplePanel {
 	private static final long serialVersionUID = 5914124874301980251L;
 
 	/** Size of the data buffer in no. of element. */
-	private static final int BUFFER_SIZE = 100;
+	private static final int BUFFER_SIZE = 1000;
 	/** Update interval in milliseconds */
 	private static final int INTERVAL = 100;
 
@@ -155,15 +152,17 @@ public class MemoryUsage extends ExamplePanel {
 		DataTable data = new DataTable(Double.class, Long.class);
 		double time = System.currentTimeMillis();
 		for (int i=BUFFER_SIZE - 1; i>=0; i--) {
-			data.add(time - i*INTERVAL, 55L);
+			data.add(time - i*INTERVAL, 0L);
 		}
 
 		// Use columns 0 and 1 for physical system memory
-		DataSource memSysUsage = new DataSeries("Used by system", data, 0, 1);
+		DataSource memSysUsage = new DataSeries("Curlic", data, 0, 1);
+
 
 
 		// Create new xy-plot
 		XYPlot plot = new XYPlot(memSysUsage);
+
 
 		// Format  plot
 		plot.setInsets(new Insets2D.Double(20.0, 90.0, 40.0, 20.0));

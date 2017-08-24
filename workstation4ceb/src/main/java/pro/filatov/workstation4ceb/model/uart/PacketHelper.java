@@ -217,6 +217,12 @@ public class PacketHelper {
         return Integer.toString(i);
     }
 
+    public static int getSensorInt(byte low_byte, byte high_byte){
+        int i =  ((low_byte & 0xff) | (high_byte << 8)) << 20 >> 20;
+        return i;
+    }
+
+
     public static String getSignedValue16bit(byte low_byte, byte high_byte){
         int i =  ((low_byte & 0xff) | (high_byte << 8)) << 16 >> 16;
         return Integer.toString(i);
