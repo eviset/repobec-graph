@@ -1,5 +1,6 @@
 package pro.filatov.workstation4ceb.form.terminal;
 
+import pro.filatov.workstation4ceb.form.terminal.graph.GraphFrame;
 import pro.filatov.workstation4ceb.form.terminal.graph.IEnableGraphListener;
 import pro.filatov.workstation4ceb.form.terminal.graph.PlotFrame;
 import pro.filatov.workstation4ceb.form.terminal.graph.PlotFrame2;
@@ -11,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import pro.filatov.workstation4ceb.form.terminal.graph.GraphFrame;
 
 /**
  * Created by yuri.filatov on 09.09.2016.
@@ -26,8 +28,7 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
     JButton createHexToImitRequest;
     JToggleButton graphButton;
     JToggleButton graphButton2;
-    PlotFrame plotDialog;
-    PlotFrame2 plotDialog2;
+    GraphFrame graphFrame;
 
     public ModeControlPanel(){
 
@@ -38,7 +39,7 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
 
         Action enableModeAction= new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-
+                Model.pointData.clearData();
                 enableModeButton.setEnabled(false);
                 sendPacketButton.setEnabled(true);
                 refreshingDataButton.setEnabled(true);
@@ -129,25 +130,24 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
         createRamDataFromRequest.setEnabled(true);
 
 
-        graphButton = new JToggleButton("Plot");
+        graphButton = new JToggleButton("Graph");
         graphButton.setMargin(new Insets(0,0,0,0));
         graphButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(graphButton.isSelected()){
                     //creating and showing this application's GUI.
-                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    /*javax.swing.SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             plotDialog = new PlotFrame();
                         }
-                    });
-                } else{
-                    plotDialog.dispose();
+                    });*/
+                    graphFrame = new GraphFrame(Model.pointData, 5000, 10);
                 }
 
             }
         });
-
+/*
         graphButton2 = new JToggleButton("Plot2");
         graphButton2.setMargin(new Insets(0,0,0,0));
         graphButton2.addActionListener(new ActionListener() {
@@ -165,7 +165,7 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
                 }
 
             }
-        });
+        });*/
 
         terminalModel.setTerminalModelEventListener(this);
         terminalModel.setGraphListener(this);
@@ -175,8 +175,7 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
         add(refreshingDataButton);
         add(createHexToImitRequest);
         add(createRamDataFromRequest);
-        add( graphButton);
-        add( graphButton2);
+        add(graphButton);
 
 
     }

@@ -346,25 +346,47 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
         add(clearStorageRadio, helper.rightColumn().get());
         add(AppFrameHelper.getTextFieldLabeled(captureDelayTextField, "over cycle:",  100,50),helper.rightColumn().setGridWidth(2).get());
 
-        sinGO = new GraphTextField(ind); ind++;
-        cosGO = new GraphTextField(ind); ind++;
-        sinTO = new GraphTextField(ind); ind++;
-        cosTO = new GraphTextField(ind); ind++;
+        sinGO = new GraphTextField("SIN GO", new Color(255, 0, 0));//setIndex(sinGO);
+        cosGO = new GraphTextField("COS GO", new Color(0, 255, 0));//setIndex(cosGO);
 
-        angle19bit = new GraphTextField(ind); ind++;
+        sinTO = new GraphTextField("SIN TO", new Color(0, 0, 255)); //setIndex(sinTO);
+        cosTO = new GraphTextField("COS TO", new Color(128, 128, 0));//setIndex(cosTO);
+
+        angle19bit = new GraphTextField("Angle 19bit", new Color(128, 0, 128)); //setIndex(angle19bit);
 
 
-        resultAngle = new GraphTextField(ind); ind++;
-        directAngle = new GraphTextField(ind); ind++;
-        result_calc_uq = new GraphTextField(ind); ind++;
+        resultAngle = new GraphTextField("RESULT_ANGLE", new Color(0, 128, 128));//setIndex(resultAngle);
+        directAngle = new GraphTextField("DIRECT_ANGLE", new Color(128, 0, 0)); //setIndex(directAngle);
+        result_calc_uq = new GraphTextField("res calc Uq", new Color(0, 128, 0));
 
-        fhvGO= new GraphTextField(ind); ind++;
-        fhvTO= new GraphTextField(ind); ind++;
-        ia= new GraphTextField(ind); ind++;
-        ib= new GraphTextField(ind); ind++;
-        calcUq = new GraphTextField(ind); ind++;
-        calcUd = new GraphTextField(ind); ind++;
+        fhvGO = new GraphTextField("FHV GO", new Color(0, 0, 128));
+        fhvTO = new GraphTextField("FHV TO", new Color(192, 0, 0));
+        ia= new GraphTextField("Ia", new Color(0, 192, 0));
+        ib= new GraphTextField("Ib", new Color(0, 0, 192));
+        calcUq = new GraphTextField("calc Uq", new Color (192, 192, 0));
+        calcUd = new GraphTextField("calc Ud", new Color(192, 0, 192));
         speedTethaTextField = createNotEditableTextField(); ind++;
+/*
+        sinGO = new GraphTextField("SIN GO", new Color(255, 0, 0));//setIndex(sinGO);
+        cosGO = new GraphTextField("COS GO", new Color(0, 255, 0));//setIndex(cosGO);
+
+        sinTO = new GraphTextField("SIN TO", new Color(0, 0, 255)); //setIndex(sinTO);
+        cosTO = new GraphTextField("COS TO", new Color(128, 128, 0));//setIndex(cosTO);
+
+        angle19bit = new GraphTextField("Angle 19bit", new Color(128, 0, 128)); //setIndex(angle19bit);
+
+
+        resultAngle = new GraphTextField("RESULT_ANGLE", new Color(0, 128, 128));//setIndex(resultAngle);
+        directAngle = new GraphTextField("DIRECT_ANGLE", new Color(128, 0, 0)); //setIndex(directAngle);
+        result_calc_uq = new GraphTextField("res calc Uq", new Color(0, 128, 0));
+
+        fhvGO = new GraphTextField("FHV GO", new Color(0, 0, 128));
+        fhvTO = new GraphTextField("FHV TO", new Color(192, 0, 0));
+        prev_go = new GraphTextField("prev_go", new Color(0, 192, 0));
+        error_go = new GraphTextField("error_go", new Color(0, 0, 192));
+        calcUq = new GraphTextField("correct", new Color (192, 192, 0));
+        calcUd = new GraphTextField("calc Ud", new Color(192, 0, 192));
+        speedTethaTextField = new GraphTextField("Speed", new Color(0, 192, 192));*/
 
         add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60,40), helper.nextRow().setGridWidth(2).get());
         add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60,40), helper.rightColumn().rightColumn().setGridWidth(2).get());

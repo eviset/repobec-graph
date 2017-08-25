@@ -33,7 +33,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
     JTextField limitUqTextField;
     JCheckBox powerKEYS, enableMatching, errorCorrection, enableCalcUqToShim, enableUMRK, enableSS, enaIntegrator;
     JCheckBox direct_go, is_filtering, scl_to_mosi;
-    JButton savePhases, checkGraph;
+    JButton savePhases;
     public GraphFrame graphFrame;
     JTextField fhvTOdelitel, porogFHVgoOrTo;
     Indicator errorSpeedIndicatorUmrk;
@@ -57,13 +57,8 @@ public class EngineModeFace extends JPanel implements IModeFace {
     ExchangeModel exchangeModel;
     TerminalModel terminalModel;
 
-    PointData pointDate;
-    private int ind = 0;
-
 
     public EngineModeFace() {
-
-        pointDate = new PointData(1000);
 
 
         GridBagHelper helper = new GridBagHelper();
@@ -309,28 +304,27 @@ public class EngineModeFace extends JPanel implements IModeFace {
         add(clearStorageRadio, helper.rightColumn().get());
         add(AppFrameHelper.getTextFieldLabeled(captureDelayTextField, "over cycle:", 100, 50), helper.rightColumn().setGridWidth(2).get());
 
-        sinGO = new GraphTextField(ind); ind++;//setIndex(sinGO);
-        cosGO = new GraphTextField(ind); ind++;//setIndex(cosGO);
+        sinGO = new GraphTextField("SIN GO", new Color(255, 0, 0));//setIndex(sinGO);
+        cosGO = new GraphTextField("COS GO", new Color(0, 255, 0));//setIndex(cosGO);
 
-        sinTO = new GraphTextField(ind); ind++;//setIndex(sinTO);
-        cosTO = new GraphTextField(ind); ind++;//setIndex(cosTO);
+        sinTO = new GraphTextField("SIN TO", new Color(0, 0, 255)); //setIndex(sinTO);
+        cosTO = new GraphTextField("COS TO", new Color(128, 128, 0));//setIndex(cosTO);
 
-        angle19bit = new GraphTextField(ind); ind++;//setIndex(angle19bit);
+        angle19bit = new GraphTextField("Angle 19bit", new Color(128, 0, 128)); //setIndex(angle19bit);
 
 
-        resultAngle = new GraphTextField(ind); ind++;//setIndex(resultAngle);
-        directAngle = new GraphTextField(ind); ind++;//setIndex(directAngle);
-        result_calc_uq = new GraphTextField(ind); ind++;
+        resultAngle = new GraphTextField("RESULT_ANGLE", new Color(0, 128, 128));//setIndex(resultAngle);
+        directAngle = new GraphTextField("DIRECT_ANGLE", new Color(128, 0, 0)); //setIndex(directAngle);
+        result_calc_uq = new GraphTextField("res calc Uq", new Color(0, 128, 0));
 
-        fhvGO = new GraphTextField(ind); ind++;
-        fhvTO = new GraphTextField(ind); ind++;
-        prev_go = new GraphTextField(ind); ind++;
-        error_go = new GraphTextField(ind); ind++;
-        calcUq = new GraphTextField(ind); ind++;
-        calcUd = new GraphTextField(ind); ind++;
-        speedTethaTextField = new GraphTextField(ind); ind++;
+        fhvGO = new GraphTextField("FHV GO", new Color(0, 0, 128));
+        fhvTO = new GraphTextField("FHV TO", new Color(192, 0, 0));
+        prev_go = new GraphTextField("prev_go", new Color(0, 192, 0));
+        error_go = new GraphTextField("error_go", new Color(0, 0, 192));
+        calcUq = new GraphTextField("correct", new Color (192, 192, 0));
+        calcUd = new GraphTextField("calc Ud", new Color(192, 0, 192));
+        speedTethaTextField = new GraphTextField("Speed", new Color(0, 192, 192));
 
-        checkGraph = new JButton("Graph");
 
         add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60, 40), helper.nextRow().setGridWidth(2).get());
         add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
@@ -362,15 +356,6 @@ public class EngineModeFace extends JPanel implements IModeFace {
         add(AppFrameHelper.getLumpLabeled(errorSpeedIndicatorSS = new Indicator(), ""), helper.rightColumn(3).setGridWidth(1).get());
         HistoryTextField historyTextField = new HistoryTextField("history", 80, 80);
         add(historyTextField, helper.nextRow().setGridWidth(3).get());
-        add(checkGraph, helper.rightColumn(3).setGridWidth(1).get());
-        checkGraph.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (checkGraph.isSelected()){
-                    //graphFrame = new GraphFrame(pointDate);
-                }
-            }
-        });
 
         add(AppFrameHelper.createPanel("free"), helper.nextRow().setGridWidth(7).setWeights(0.5f, 0.9f).get());
 
@@ -596,7 +581,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
     @Override
     public void refreshDataOnFace() {
-
+        Model.pointData.addPointPackage();
         byte[] response = exchangeModel.getResponse();
         if (response.length < 10) {
             System.out.println("Length response from CEB are SMALL ");
@@ -604,12 +589,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
         }
         byte[] resp = PacketHelper.extractCebPacket(response);
 
-        pointDate.addPointPackage();
-
-        Double sin_go_data = getMyDataFromCeb16bit(resp[1], resp[2]);
-        sinGO.addPoint(String.valueOf(sin_go_data), sin_go_data);
-        // sinGO.setText(getSensor(resp[2], resp[3]));
-        sinGO.setTextCheck(getSensor(resp[2], resp[3]), pointDate.getPointPackage(0));
+        sinGO.setText(getSensor(resp[2], resp[3]));
         cosGO.setText(getSensor(resp[4], resp[5]));
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
@@ -649,6 +629,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
 
     private String getSensor(byte low_byte, byte high_byte) {return PacketHelper.getSensor(low_byte, high_byte);}
+    private Double getSensorDouble(byte low_byte, byte high_byte) {return PacketHelper.getSensorDouble(low_byte, high_byte);}
 
    /* private void setIndex(GraphTextField cur){
         cur.setIndex(ind);

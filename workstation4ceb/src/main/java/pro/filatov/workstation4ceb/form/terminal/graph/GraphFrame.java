@@ -28,7 +28,9 @@ public class GraphFrame implements GLEventListener{
     private boolean flagPressed = true;
     private boolean flagPushMatrix = true;
     private boolean flagPopMatrix = false;
-    private float timeX, timeStop, scaleWidth = 1.0f, scaleHeight = 1.0f, scaleOffsetWheelX = 0.0f, scaleOffsetWheelY = 0.0f;
+    private boolean flagSaveTimeX = true;
+    private boolean flagYMax = false, flagYMin = false;
+    private float timeX, timeXSave, timeStop, scaleWidth = 1.0f, scaleHeight = 1.0f, scaleOffsetWheelX = 0.0f, scaleOffsetWheelY = 0.0f;
     private int width, height, delX, delY, scaleOffsetZeroX, scaleOffsetZeroY;
     private long timeForX, timeZero, offsetDelX, offsetSize, offsetSizeZero, gmaMax = 0, pressedX, pressedY, pressedXZero, pressedYZero, rangeX, delXRange;
     private GL2 gl2_display;
@@ -37,18 +39,7 @@ public class GraphFrame implements GLEventListener{
     private LinkedList<LabelList> labelList;
     private DecimalFormat df;
 
-
-
-/*
-    GraphFrame(PointData data, long rangeStart, int delXStart, double rangeYStart, float sacleYStart){
-        range = rangeStart;
-        delX = delXStart;
-        sizeY = rangeYStart;
-        scaleY = sacleYStart;
-        this.start(this, data);
-    }*/
-
-    GraphFrame(PointData data, long rangeStart, int delXStart, double max, double min){
+    public GraphFrame(PointData data, long rangeStart, int delXStart, double max, double min){
         rangeX = rangeStart;
         delX = delXStart;
         rangeY = max - min;
@@ -58,7 +49,7 @@ public class GraphFrame implements GLEventListener{
         this.start(this, data);
     }
 
-    GraphFrame(PointData data, long rangeStart, int delXStart){
+    public GraphFrame(PointData data, long rangeStart, int delXStart){
         rangeX = rangeStart;
         delX = delXStart;
         rangeY = 20;
@@ -68,7 +59,7 @@ public class GraphFrame implements GLEventListener{
         this.start(this, data);
     }
 
-    GraphFrame(PointData data, long rangeStart){
+    public GraphFrame(PointData data, long rangeStart){
         rangeX = rangeStart;
         delX = 10;
         rangeY = 20;
@@ -78,7 +69,7 @@ public class GraphFrame implements GLEventListener{
         this.start(this, data);
     }
 
-    GraphFrame(PointData data){
+    public GraphFrame(PointData data){
         rangeX = 5000;
         delX = 10;
         rangeY = 20;
@@ -162,7 +153,7 @@ public class GraphFrame implements GLEventListener{
         yAxis(width, height);
 
 
-
+/*
         gl2_display.glColor3f(0.0f,0.5f,0.5f);
         gl2_display.glBegin(GL2.GL_QUADS);
         gl2_display.glVertex2f( 0.005f, 0.005f);
@@ -176,7 +167,7 @@ public class GraphFrame implements GLEventListener{
         gl2_display.glVertex2f( -0.005f - scaleXZero, 0.005f + scaleYZero);
         gl2_display.glVertex2f( -0.005f - scaleXZero,-0.005f + scaleYZero);
         gl2_display.glVertex2f( 0.005f - scaleXZero,-0.005f + scaleYZero);
-        gl2_display.glEnd();/*
+        gl2_display.glEnd();*//*
         renderer.beginRendering(width,height);
         renderer.setColor(1.0f, 1.0f, 1.0f, 1);
         renderer.draw(".", width/2 - 1, height/2 - 1);
@@ -224,23 +215,25 @@ public class GraphFrame implements GLEventListener{
                     labelList.add(new LabelList(pointData.getPointPackage(i).getPointInd(j), pointData.getPointPackage(i).getPointColor(j)));
                 }
                 flagLabelList = true;
+                if (j < pointData.getPointPackage(i+1).getSize()) {
+                    if (pointData.getPointPackage(i).getPointInd(j) == pointData.getPointPackage(i + 1).getPointInd(j)) {
+                        x1 = scaleWidth * (1.7f * ((float) (pointData.getPointPackage(i).getTime() - timeForX) / rangeX) - 0.9f);
+                        y1 = scaleHeight * (1.9f * pointData.getPointPackage(i).getPointValue(j)) / rangeY;
+                        //scaleOffsetZeroX = (float)x1;
+                        //scaleOffsetZeroY = (float)y1;
+                        //x1 = x1*scaleWidth;
+                        //y1 = y1*scaleHeight;
 
-                x1 = scaleWidth*(1.7f*((float)(pointData.getPointPackage(i).getTime() - timeForX) / rangeX) - 0.9f);
-                y1 = scaleHeight*(1.9f*pointData.getPointPackage(i).getPointValue(j)) / rangeY;
-                //scaleOffsetZeroX = (float)x1;
-                //scaleOffsetZeroY = (float)y1;
-                //x1 = x1*scaleWidth;
-                //y1 = y1*scaleHeight;
+                        x2 = scaleWidth * (1.7f * ((float) (pointData.getPointPackage(i + 1).getTime() - timeForX) / rangeX) - 0.9f);
+                        y2 = scaleHeight * (1.9f * pointData.getPointPackage(i + 1).getPointValue(j)) / rangeY;
+                        //x2 = x2*scaleWidth;
+                        //y2 = y2*scaleHeight;
 
-                x2 = scaleWidth*(1.7f*((float)(pointData.getPointPackage(i + 1).getTime() - timeForX) / rangeX) - 0.9f);
-                y2 = scaleHeight*(1.9f*pointData.getPointPackage(i + 1).getPointValue(j)) / rangeY;
-                //x2 = x2*scaleWidth;
-                //y2 = y2*scaleHeight;
-
-                gl2_display.glVertex2d(x1, y1);
-                gl2_display.glVertex2d(x2, y2);
-
-                gl2_display.glEnd();
+                        gl2_display.glVertex2d(x1, y1);
+                        gl2_display.glVertex2d(x2, y2);
+                    }
+                }
+                    gl2_display.glEnd();
             }
         }
     }
@@ -249,14 +242,14 @@ public class GraphFrame implements GLEventListener{
         gl2_display.glBegin(GL2.GL_LINES);
         gl2_display.glColor3f(0.9f, 0.9f, 1.0f);
         for (int i = -1; i <= delX + 1; i++) {
-            gl2_display.glVertex2f(1.7f*(rangeX/2 - delXRange*i - offsetSize + offsetDelX)/rangeX + 0.05f - scaleXZero + xOffset, -1.0f + scaleYZero);
-            gl2_display.glVertex2f(1.7f*(rangeX/2 - delXRange*i - offsetSize + offsetDelX)/rangeX + 0.05f - scaleXZero + xOffset, 1.0f + scaleYZero);
+            gl2_display.glVertex2f(1.7f*(rangeX/2 - delXRange*i - offsetSize*scaleWidth + offsetDelX)/rangeX + 0.05f - scaleXZero + xOffset, -1.0f + scaleYZero);
+            gl2_display.glVertex2f(1.7f*(rangeX/2 - delXRange*i - offsetSize*scaleWidth + offsetDelX)/rangeX + 0.05f - scaleXZero + xOffset, 1.0f + scaleYZero);
         }
         gl2_display.glEnd();
     }
 
     private void xAxis(int x, int y){
-        Float X;
+        Float textX;
         float x1, y1;
         gl2_display.glBegin(GL2.GL_LINES);
         gl2_display.glColor3f(0.0f, 0.0f, 0.0f);
@@ -265,7 +258,8 @@ public class GraphFrame implements GLEventListener{
         gl2_display.glEnd();
         for (int i = -1; i <= delX + 1; i++){
             gl2_display.glColor3f(0.0f, 0.0f, 0.0f);
-            x1 = 1.7f*(-rangeX/2 + delXRange*i - offsetSize + offsetDelX)/rangeX + 0.05f + xOffset;
+            x1 = 1.7f*(-rangeX/2 + delXRange*i - offsetSize*scaleWidth + offsetDelX)/rangeX + 0.05f + xOffset;
+            //x1 = 1.7f*(-rangeX/2 + offsetDelX)/rangeX + 0.05f;
             y1 = -0.95f + scaleYZero;
             gl2_display.glBegin(GL2.GL_LINES);
             gl2_display.glVertex2f(x1 - scaleXZero, y1);
@@ -273,41 +267,12 @@ public class GraphFrame implements GLEventListener{
             gl2_display.glEnd();
             renderer.beginRendering(x, y);
             renderer.setColor(0.0f, 0.0f, 0.0f, 1);
-            //X = timeX + i*0.5f + timeOffset; scaleTime
-            //X = timeX + scaleTimeOffset + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-            //X = timeX;
-            //renderer.draw(X.toString(), (int)(x*(x1+1)/2 - X.toString().length()*3), 5);
-           /* if (scaleWidth > 1.0f){
-                X = timeX + scaleTimeOffset + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-            }
-            else{
-                if (scaleWidth < 1.0f){
-                    X = timeX - scaleTimeOffset + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-                }
-                else{
-                    X = timeX + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-                }
-            }*/
-            //X = timeX + scaleTimeOffset + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-            X = timeX + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
-            renderer.draw(X.toString(), (int)(x*(x1+1)/2 - X.toString().length()*3), 20);
-            X = timeX;
-            renderer.draw(X.toString(), (int)(x*(x1+1)/2 - X.toString().length()*3), 5);
+            textX = timeX + i * scaleTime/scaleWidth + timeOffset/scaleWidth;
+            renderer.draw(df.format(textX), (int)(x*(x1+1)/2 - df.format(textX).length()*3), 5);
             renderer.endRendering();
             gl2_display.glEnd();
         }
     }
-    /*
-        double minValue = pointData.getMinValue();
-        double maxValue = pointData.getMaxValue();
-
-            if (maxValue > -minValue){
-            if (maxValue > 1){sizeY = maxValue;}else{sizeY = 1;}
-        }
-            else{
-            if (-minValue > 1){sizeY = -minValue;}else{sizeY = 1;}
-        }
-    */
     private void yNet(){
 
         //sizeY = sizeY * scaleYStart;
@@ -322,7 +287,7 @@ public class GraphFrame implements GLEventListener{
 
     private void yAxis(int x, int y){
         float x1, y1;
-        Double X;
+        Double textY;
         gl2_display.glBegin(GL2.GL_LINES);
         gl2_display.glColor3f(0.0f, 0.0f, 0.0f);
         gl2_display.glVertex2f(-0.9f - scaleXZero, -0.95f + scaleYZero);
@@ -338,8 +303,8 @@ public class GraphFrame implements GLEventListener{
             gl2_display.glEnd();
             renderer.beginRendering(x, y);
             renderer.setColor(0.0f, 0.0f, 0.0f, 1);
-            X = (yMin + rangeY/delY*i + textOffset)/scaleHeight;
-            renderer.draw(df.format(X), 5, (int)(y*(y1+1)/2 - 5));
+            textY = (yMin + rangeY/delY*i + textOffset)/scaleHeight;
+            renderer.draw(df.format(textY), 5, (int)(y*(y1+1)/2 - 5));
             renderer.endRendering();
         }
     }
@@ -433,7 +398,7 @@ public class GraphFrame implements GLEventListener{
         //timeStop = - range / 1000;
         delXRange = rangeX / delX;
         delYRange = rangeY / delY;
-        scaleTime = delXRange/1000.0f;
+        scaleTime = delXRange/ 1000.0f;
         offsetDelX = timeForX % delXRange;
 
     }
@@ -493,10 +458,16 @@ public class GraphFrame implements GLEventListener{
         });
         glcanvas.addMouseWheelListener(new MouseWheelListener() {
             public void mouseWheelMoved(MouseWheelEvent e) {
-                if (flagStop) {
+                float x0;
+                //if (flagStop) {
                     int notches = e.getWheelRotation();
                     //scaleOffsetWheelX = 0.1f*e.getX()/(width);
                     //scaleOffsetWheelY = 0.1f*e.getY()/(height);
+                if (flagSaveTimeX){
+                    timeXSave = timeX;
+                    flagSaveTimeX = false;
+                }
+                    x0 = 1.7f*(-rangeX/2 + offsetDelX - offsetSize)/rangeX + 0.05f;
                     if (notches < 0) {
                         //scaleOffsetWheelX = scaleOffsetZeroX*1.1f - scaleOffsetZeroX;
                         //scaleOffsetWheelY = scaleOffsetZeroY*1.1f - scaleOffsetZeroY;
@@ -504,23 +475,15 @@ public class GraphFrame implements GLEventListener{
                         scaleOffsetWheelY = 2.0f * ((e.getY() - (height / 2 + height * scaleYZero / 2)) * 2.0f - (e.getY() - (height / 2 + height * scaleYZero / 2))) / (height);
                         scaleWidth = scaleWidth * 2.0f;
                         scaleHeight = scaleHeight * 2.0f;
+                        timeX -= rangeX/1000.0f*((x0)/scaleWidth)/1.7f;
                     } else {
                         scaleOffsetWheelX = 2.0f * ((e.getX() - (width / 2 + width * scaleXZero / 2)) / 2.0f - (e.getX() - (width / 2 + width * scaleXZero / 2))) / (width);
                         scaleOffsetWheelY = 2.0f * ((e.getY() - (height / 2 + height * scaleYZero / 2)) / 2.0f - (e.getY() - (height / 2 + height * scaleYZero / 2))) / (height);
+                        timeX += rangeX/1000.0f*((x0)/(scaleWidth))/1.7f;
                         scaleWidth = scaleWidth / 2.0f;
                         scaleHeight = scaleHeight / 2.0f;
 
-                    }/*
-                    Math.abs(1.7f*(-rangeX/2 - offsetSize + offsetDelX)/rangeX + 0.05f + xOffset) + scaleOffsetWheelX;
-                    //1.7f*(-rangeX/2 - offsetSize + offsetDelX)/rangeX + 0.05f + xOffset
-                    //scaleTimeOffset = scaleOffsetWheelX
-                    //scaleTimeOffset = -rangeX/2000.0f/scaleWidth;
-                    //scaleTimeOffset = rangeX / scaleWidth / 1000;*/
-                    //timeX = rangeX*(2.0f*(timeX*1000 + rangeX)/rangeX + (0.9f + scaleOffsetWheelX)/scaleWidth)/2.0f/1000;
-                }
-
-
-                //scaleWidth = scaleWidth;
+                    }
                 flagGLCanvas = true;
             }
         });
@@ -553,6 +516,10 @@ public class GraphFrame implements GLEventListener{
                 scaleOffsetWheelY = 0.0f;
                 scaleWidth = 1.0f;
                 scaleHeight = 1.0f;
+                if (!flagSaveTimeX){
+                    timeX = timeXSave;
+                    flagSaveTimeX = true;
+                }
             }
         });
 
@@ -579,6 +546,12 @@ public class GraphFrame implements GLEventListener{
                     scaleOffsetY = (float)(1.9f*(yMin + rangeY / 2)/rangeY);
                     scaleOffsetWheelX = 0.0f;
                     scaleOffsetWheelY = 0.0f;
+                    if (!flagSaveTimeX){
+                        timeX = timeXSave;
+                        flagSaveTimeX = true;
+                    }
+                    scaleWidth = 1.0f;
+                    scaleHeight = 1.0f;
                     //scaleOffsetY = (float)(1.9f*scaleOffsetY/(rangeY));
                     delYRange = rangeY / delY;
 
@@ -592,9 +565,12 @@ public class GraphFrame implements GLEventListener{
         final Timer updateTimer = new Timer(25, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 timeZero = System.currentTimeMillis() - rangeX;
-                offsetSizeZero = timeZero % delXRange;
+                if ((long)(delXRange/scaleWidth) == 0) {flagStop = false;}
+                else {
+                    offsetSizeZero = timeZero % (long)(delXRange/scaleWidth);
+                }
                 if (offsetSizeZero < gmaMax) {
-                    timeStop +=(float)rangeX/(delX*1000);
+                    timeStop +=(float)rangeX/(delX*1000*scaleWidth);
                 }
                 gmaMax = offsetSizeZero;
                 if (!flagStop){
@@ -609,12 +585,12 @@ public class GraphFrame implements GLEventListener{
 
         final JTextField rangeXText = new JTextField(5);
         final JTextField delXText = new JTextField(5);
-        final JTextField rangeYText = new JTextField(5);
-        //final JTextField scaleYText = new JTextField(5);
+        //final JTextField maxYText = new JTextField(5);
+        //final JTextField minYText = new JTextField(5);
         JLabel rangeXName = new JLabel("Range X:");
         JLabel delXName = new JLabel("Del X:");
-        final JLabel rangeYName = new JLabel("Range Y:");
-        //JLabel scaleYName = new JLabel("Scale Y:");
+        //final JLabel maxYName = new JLabel("max Y:");
+        //JLabel minYName = new JLabel("min Y:");
 
 
         rangeXText.setText(String.valueOf(rangeX/1000));
@@ -632,20 +608,34 @@ public class GraphFrame implements GLEventListener{
                 changeRange();
             }
         });
-
-        rangeYText.setText(String.valueOf(rangeY));
-        rangeYText.addActionListener(new ActionListener() {
+/*
+        maxYText.setText(String.valueOf(yMax));
+        maxYText.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                rangeY = Double.parseDouble(rangeYText.getText());
-                changeRange();
+                flagYMax = true;
+                if (flagYMax & flagYMin) {
+                    yMax = Double.parseDouble(maxYText.getText());
+                    yMin = Double.parseDouble(minYText.getText());
+                    rangeY = yMax - yMin;
+                    delYRange = rangeY / delY;
+                    flagYMax = false;
+                    flagYMin = false;
+                }
             }
         });
-/*
-        scaleYText.setText(String.valueOf(scaleY));
-        scaleYText.addActionListener(new ActionListener() {
+
+        minYText.setText(String.valueOf(yMin));
+        minYText.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                scaleY = Float.parseFloat(scaleYText.getText());
-                changeRange();
+                flagYMin = true;
+                if (flagYMax&flagYMin) {
+                    yMax = Double.parseDouble(maxYText.getText());
+                    yMin = Double.parseDouble(minYText.getText());
+                    rangeY = yMax - yMin;
+                    delYRange = rangeY / delY;
+                    flagYMax = false;
+                    flagYMin = false;
+                }
             }
         });*/
 
@@ -655,8 +645,8 @@ public class GraphFrame implements GLEventListener{
         settingsPlotPanel.setBackground(Color.white);
         settingsPlotPanel.add(rangeXName, helper.get());
         settingsPlotPanel.add(rangeXText, helper.rightColumn().fillBoth().get());
-        settingsPlotPanel.add(rangeYName, helper.rightColumn().fillBoth().get());
-        settingsPlotPanel.add(rangeYText, helper.rightColumn().fillBoth().get());
+        //settingsPlotPanel.add(maxYName, helper.rightColumn().fillBoth().get());
+        //settingsPlotPanel.add(maxYText, helper.rightColumn().fillBoth().get());
         settingsPlotPanel.add(stopButton, helper.rightColumn().fillBoth().get());
         //settingsPlotPanel.add(scale, helper.rightColumn().get());
 
@@ -664,8 +654,10 @@ public class GraphFrame implements GLEventListener{
         settingsPlotPanel.add(delXText, helper.rightColumn().fillBoth().get());
         //settingsPlotPanel.add(scaleYName, helper.rightColumn().fillBoth().get());
         //settingsPlotPanel.add(scaleYText, helper.rightColumn().fillBoth().get());
-        settingsPlotPanel.add(scale, helper.rightColumn(2).fillBoth().get());
+        //settingsPlotPanel.add(minYName, helper.rightColumn().fillBoth().get());
+        //settingsPlotPanel.add(minYText, helper.rightColumn().fillBoth().get());
         settingsPlotPanel.add(returnTranslated, helper.rightColumn().fillBoth().get());
+        settingsPlotPanel.add(scale, helper.rightColumn().fillBoth().get());
         //settingsPlotPanel.add(but, helper.rightColumn().fillBoth().get());
 
         //settingsPlotPanel.add(stopButton, helper.rightColumn().fillBoth().get());

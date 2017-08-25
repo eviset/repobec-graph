@@ -1,5 +1,6 @@
 package pro.filatov.workstation4ceb.model;
 
+import pro.filatov.workstation4ceb.form.terminal.graph.PointData;
 import pro.filatov.workstation4ceb.model.editor.EditorModel;
 import pro.filatov.workstation4ceb.model.fpga.Terminal.ImitatorModel;
 import pro.filatov.workstation4ceb.model.editor.TreeViewModel;
@@ -24,7 +25,7 @@ public class Model {
     public static ImitatorModel imitatorModel = new ImitatorModel();
     public static TerminalModel terminalModel = new TerminalModel();
     public static ExchangeModel exchangeModel = new ExchangeModel();
-
+    public static PointData pointData = new PointData(1000);
 
 
     public static void init(){

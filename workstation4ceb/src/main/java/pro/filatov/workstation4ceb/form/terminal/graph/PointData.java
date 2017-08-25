@@ -9,7 +9,7 @@ import java.util.LinkedList;
  */
 public class PointData {
     private LinkedList<PointPackage> pointPackages;
-    private int BUFFER;
+    private int buffer;
 
     private long xZero = -1;
 
@@ -25,7 +25,7 @@ public class PointData {
 
 
     public PointData(int buf) {
-        this.BUFFER = buf;
+        this.buffer = buf;
         this.pointPackages = new LinkedList<PointPackage>();
     }
 
@@ -63,7 +63,7 @@ public class PointData {
 
     public void addPointPackage() {
         PointPackage pointPackage = new PointPackage();
-        if (this.pointPackages.size() < BUFFER)
+        if (this.pointPackages.size() < buffer)
             this.pointPackages.addFirst(pointPackage);
         else {
             this.pointPackages.removeLast();

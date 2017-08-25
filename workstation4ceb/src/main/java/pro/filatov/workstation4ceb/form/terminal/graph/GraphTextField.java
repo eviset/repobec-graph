@@ -1,5 +1,7 @@
 package pro.filatov.workstation4ceb.form.terminal.graph;
 
+import pro.filatov.workstation4ceb.model.Model;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -11,39 +13,38 @@ import java.awt.event.MouseListener;
 public class GraphTextField extends JTextField{
 
 
-    private final Color COLOR_ON = new Color(235, 235, 235);
-
+    private Color colorDef = new Color(235, 235, 235);
 
     private String labelGraph;
     private String labelTextField;
+    private String name;
+    private Color graphColor;
+
+    private boolean flagEnable = false;
 
 
-    public void  addPoint(String valueTextField, Double valueGraph){
-
-
-
+    public void  addPoint(Double valueGraph){
+        if (flagEnable) {
+            Model.pointData.addPointStruct(valueGraph, name, graphColor);
+        }
     }
 
-
-    private int index = -1;
-
-
-
-
-
-    public GraphTextField(int index) {
-        this.setIndex(index);
-        super.setBackground(COLOR_ON);
+    public GraphTextField(String name, Color color) {
+        this.name = name;
+        this.graphColor = color;
+        super.setBackground(colorDef);
         super.setEnabled(false);
         super.setDisabledTextColor(Color.black);
         super.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (GraphTextField.this.getBackground() != Color.orange) {
-                    GraphTextField.this.setBackground(Color.orange);
+                if (flagEnable) {
+                    flagEnable = false;
+                    GraphTextField.this.setBackground(colorDef);
                 }
                 else {
-                    GraphTextField.this.setBackground(COLOR_ON);
+                    flagEnable = true;
+                    GraphTextField.this.setBackground(graphColor);
                 }
         }
 
@@ -68,62 +69,5 @@ public class GraphTextField extends JTextField{
         });
     }
 
-    public GraphTextField(String name, Color color) {
-        this.setIndex(index);
-        super.setBackground(COLOR_ON);
-        super.setEnabled(false);
-        super.setDisabledTextColor(Color.black);
-
-        super.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (GraphTextField.this.getBackground() != Color.orange) {
-                    GraphTextField.this.setBackground(Color.orange);
-                }
-                else {
-                    GraphTextField.this.setBackground(COLOR_ON);
-                }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-        });
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public Color getColor(){
-        return new Color(255, 255, 255);
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
     //sinGO.setText(getSensor(resp[2], resp[3]));
-
-    public void setTextCheck(String sensor, PointPackage newPoint){  //add new point to list while BackGround = orange
-        super.setText(sensor);
-        if (this.getBackground() == Color.orange)
-            //newPoint.addPointStruct(Integer.parseInt(sensor), 0);
-            newPoint.addPointStruct(Integer.parseInt(sensor), index);
-    }
 }
