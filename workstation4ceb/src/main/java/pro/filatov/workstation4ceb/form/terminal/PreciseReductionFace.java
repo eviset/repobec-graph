@@ -671,6 +671,11 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
 
+        sinGO.addPoint(getSensorDouble(resp[2], resp[3]));
+        cosGO.addPoint(getSensorDouble(resp[4], resp[5]));
+        sinTO.addPoint(getSensorDouble(resp[6], resp[7]));
+        cosTO.addPoint(getSensorDouble(resp[8], resp[9]));
+
         fhvGO.setText(getSensor(resp[10], resp[11]));
         fhvTO.setText(getSensor(resp[12], resp[13]));
         ia.setText(getSensor(resp[14], resp[15]));
@@ -700,6 +705,8 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
     private String getSensor(byte low_byte, byte high_byte){
         return  PacketHelper.getSensor(low_byte, high_byte);
     }
+
+    private Double getSensorDouble(byte low_byte, byte high_byte) {return PacketHelper.getSensorDouble(low_byte, high_byte);}
 
 
 }

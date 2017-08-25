@@ -326,6 +326,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
         speedTethaTextField = new GraphTextField("Speed", new Color(0, 192, 192));
 
 
+
         add(AppFrameHelper.getTextFieldLabeled(sinGO, "SIN GO:", 60, 40), helper.nextRow().setGridWidth(2).get());
         add(AppFrameHelper.getTextFieldLabeled(cosGO, "COS GO:", 60, 40), helper.rightColumn().rightColumn().setGridWidth(2).get());
 
@@ -594,6 +595,11 @@ public class EngineModeFace extends JPanel implements IModeFace {
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
 
+        sinGO.addPoint(getSensorDouble(resp[2], resp[3]));
+        cosGO.addPoint(getSensorDouble(resp[4], resp[5]));
+        sinTO.addPoint(getSensorDouble(resp[6], resp[7]));
+        cosTO.addPoint(getSensorDouble(resp[8], resp[9]));
+
         fhvGO.setText(getSensor(resp[10], resp[11]));
         fhvTO.setText(getSensor(resp[12], resp[13]));
         prev_go.setText(PacketHelper.getUnsignedWord12bit(resp[14], resp[15]));
@@ -610,6 +616,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
         result_calc_uq.setText(getSensor(resp[30], resp[31]));
 
         speedTethaTextField.setText(getSensor(resp[32], resp[33]));
+
         byte modes = resp[2];
 
         errorSpeedIndicatorUmrk.refresh(PacketHelper.getBitFromByte(resp[24], 0));
