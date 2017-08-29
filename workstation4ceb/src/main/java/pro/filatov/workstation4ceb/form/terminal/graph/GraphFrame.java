@@ -36,7 +36,7 @@ public class GraphFrame implements GLEventListener{
     private long timeForX, timeZero, offsetDelX, offsetSize, offsetSizeZero, gmaMax = 0, pressedX, pressedY, pressedXZero, pressedYZero, rangeX, delXRange;
     private GL2 gl2_display;
     private float scaleX = 0.0f, scaleY = 0.0f, scaleOffsetY = 0.0f, scaleXZero = 0.0f, scaleYZero = 0.0f, scaleTime = 0.0f, timeOffset = 0.0f, xOffset = 0.0f, yOffset = 0.0f, scaleTimeOffset = 0.0f;
-    TextRenderer renderer = new TextRenderer(new Font("Serif", Font.PLAIN, 14), true, true);
+    private TextRenderer renderer;
     private LinkedList<LabelList> labelList;
     private DecimalFormat df;
 
@@ -409,6 +409,7 @@ public class GraphFrame implements GLEventListener{
 
 
     public void start(GraphFrame b, PointData data){
+        renderer = new TextRenderer(new Font("Serif", Font.PLAIN, 14), true, true);
         df = new DecimalFormat("#.##");
         labelList = new LinkedList<LabelList>();
         delY = 10;
