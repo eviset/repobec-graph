@@ -339,11 +339,11 @@ public class GraphFrame implements GLEventListener{
 
     }
 
-    private static void setColor(GL2 gl, Color color){
+    private void setColor(GL2 gl, Color color){
         gl.glColor3f(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f);
     }
 
-    private static void indColor(GL2 gl, int IND){
+    private void indColor(GL2 gl, int IND){
         int mod = IND % 3;
         double x = 0, y = 0, z = 0;
 
@@ -389,7 +389,7 @@ public class GraphFrame implements GLEventListener{
         gl.glColor3d(x, y, z);
     }
 
-    private static double cycle(double IND){
+    private double cycle(double IND){
         double s = 0.0, k = 0.5;
         for (int i = 0; i < IND; i++){
             s = s + k;
