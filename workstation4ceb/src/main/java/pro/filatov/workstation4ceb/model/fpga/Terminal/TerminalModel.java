@@ -198,6 +198,9 @@ public class TerminalModel {
         countResponse++;
         modeFaceMap.get(currentExchangeMode).refreshDataOnFace();
     }
+    public void refreshCurrentFaceTest(){
+        modeFaceMap.get(currentExchangeMode).refreshDataOnFaceTest();
+    }
 
 
     public byte[] getRequestCurrentMode(){

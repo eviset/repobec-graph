@@ -176,22 +176,22 @@ public class StepMode1Face extends JPanel implements IModeFace {
     @Override
     public void refreshDataOnFace() {
 
-        byte []response = exchangeModel.getResponse();
-        if(response.length == 0 | response.length < 65 ){//| response.length != 70
+        byte[] response = exchangeModel.getResponse();
+        if (response.length == 0 | response.length < 65) {//| response.length != 70
             //System.out.println("Length response from CEB less than 64! ");
             return;
         }
 
-        byte []resp  =PacketHelper.extractCebPacket(response);
+        byte[] resp = PacketHelper.extractCebPacket(response);
         DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 
         int index = 4;
         int init_row, init_col;
-        Boolean isPart2 = ((int)resp [2] & 0x01 ) == 1;
-        if(isPart2){
+        Boolean isPart2 = ((int) resp[2] & 0x01) == 1;
+        if (isPart2) {
             init_row = 4;
             init_col = 4;
-        }else {
+        } else {
             init_row = 0;
             init_col = 1;
         }
@@ -204,15 +204,15 @@ public class StepMode1Face extends JPanel implements IModeFace {
                     String value = PacketHelper.getSensor(resp[index], resp[index + 1]);
                     rowVector.setElementAt(value, c);
                     index = index + 2;
-                    if (index == 58| index > resp.length) {
+                    if (index == 58 | index > resp.length) {
                         return;
                     }
                 }
                 init_col = 1;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             this.revalidate();
             table.repaint();
         }
@@ -220,6 +220,9 @@ public class StepMode1Face extends JPanel implements IModeFace {
 
     }
 
+    @Override
+    public void refreshDataOnFaceTest() {
+    }
 
 
 

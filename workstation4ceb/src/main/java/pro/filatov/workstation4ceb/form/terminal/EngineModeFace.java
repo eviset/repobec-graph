@@ -579,6 +579,19 @@ public class EngineModeFace extends JPanel implements IModeFace {
         }
     }
 
+    @Override
+    public void refreshDataOnFaceTest(){
+        Model.pointData.addPointPackage();
+        sinGO.setText(Double.toString(Model.testResp[0]));
+        cosGO.setText(Double.toString(Model.testResp[1]));
+        sinTO.setText(Double.toString(Model.testResp[2]));
+        cosTO.setText(Double.toString(Model.testResp[3]));
+
+        sinGO.addPoint(Model.testResp[0]);
+        cosGO.addPoint(Model.testResp[1]);
+        sinTO.addPoint(Model.testResp[2]);
+        cosTO.addPoint(Model.testResp[3]);
+    }
 
     @Override
     public void refreshDataOnFace() {
@@ -594,6 +607,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
         cosGO.setText(getSensor(resp[4], resp[5]));
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
+
 
         sinGO.addPoint(getSensorDouble(resp[2], resp[3]));
         cosGO.addPoint(getSensorDouble(resp[4], resp[5]));
@@ -624,14 +638,6 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
         this.repaint();
         this.revalidate();
-    }
-
-
-    private Double getMyDataFromCeb16bit(byte b1, byte b2){
-
-
-
-        return 0.1d;
     }
 
 

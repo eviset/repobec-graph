@@ -123,7 +123,12 @@ public class UartModel {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }/*
+            byte[] response = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            for(int i = 0; i < 14; i++){
+                response[i] = 0x01;
+            }
+            packetReceived = response;*/
         }
 
 

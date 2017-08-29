@@ -247,6 +247,10 @@ public class SensorCalibrationFace extends JPanel implements IModeFace {
 
     }
 
+    @Override
+    public void refreshDataOnFaceTest() {
+    }
+
 
 
 

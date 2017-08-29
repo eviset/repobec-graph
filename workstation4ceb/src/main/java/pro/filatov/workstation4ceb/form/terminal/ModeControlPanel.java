@@ -2,8 +2,6 @@ package pro.filatov.workstation4ceb.form.terminal;
 
 import pro.filatov.workstation4ceb.form.terminal.graph.GraphFrame;
 import pro.filatov.workstation4ceb.form.terminal.graph.IEnableGraphListener;
-import pro.filatov.workstation4ceb.form.terminal.graph.PlotFrame;
-import pro.filatov.workstation4ceb.form.terminal.graph.PlotFrame2;
 import pro.filatov.workstation4ceb.model.Model;
 import pro.filatov.workstation4ceb.model.fpga.Terminal.TerminalModel;
 import pro.filatov.workstation4ceb.model.uart.ExchangeModel;
@@ -12,7 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import pro.filatov.workstation4ceb.form.terminal.graph.GraphFrame;
 
 /**
  * Created by yuri.filatov on 09.09.2016.
@@ -27,8 +24,10 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
     JButton createRamDataFromRequest;
     JButton createHexToImitRequest;
     JToggleButton graphButton;
-    JToggleButton graphButton2;
+    JToggleButton graphTestButton;
     GraphFrame graphFrame;
+    private float x = 0.0f;
+    private boolean flagTest = true;
 
     public ModeControlPanel(){
 
@@ -137,35 +136,53 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
             public void actionPerformed(ActionEvent e) {
                 if(graphButton.isSelected()){
                     //creating and showing this application's GUI.
-                    /*javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            plotDialog = new PlotFrame();
+                            graphFrame = new GraphFrame(Model.pointData, 5000, 10);
                         }
-                    });*/
-                    graphFrame = new GraphFrame(Model.pointData, 5000, 10);
+                    });
+                    //graphFrame = new GraphFrame(Model.pointData, 5000, 10);
                 }
 
             }
         });
-/*
-        graphButton2 = new JToggleButton("Plot2");
-        graphButton2.setMargin(new Insets(0,0,0,0));
-        graphButton2.addActionListener(new ActionListener() {
+
+        final Timer testPoint = new Timer(1, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(graphButton2.isSelected()){
-                    //creating and showing this application's GUI.
-                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            plotDialog2 = new PlotFrame2();
-                        }
-                    });
-                } else{
-                    plotDialog2.dispose();
-                }
-
+                x += 0.1;
+                Model.testResp[0] = Math.sin(x);
+                Model.testResp[1] = Math.cos(x)/1000;
+                Model.testResp[2] = Math.sin(x)/100+10000;
+                Model.testResp[3] = Math.cos(x)/100-10;
+                Model.testResp[4] = Math.sin(x);
+                Model.testResp[5] = Math.cos(x)*1000;
+                Model.testResp[6] = Math.sin(x)/100+10;
+                Model.testResp[7] = Math.cos(x)/100-10;
+                Model.testResp[8] = Math.sin(x);
+                Model.testResp[9] = Math.cos(x)/10;
+                Model.testResp[10] = Math.sin(x)+ 20;
+                Model.testResp[11] = Math.cos(x)/-10;
+                terminalModel.refreshCurrentFaceTest();
             }
-        });*/
+        });
+
+        graphTestButton = new JToggleButton("Start Test");
+        graphTestButton.setMargin(new Insets(0,0,0,0));
+        graphTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (flagTest){
+                    testPoint.start();
+                    graphTestButton.setText("Stop Test");
+                }
+                else{
+                    graphTestButton.setText("Start Test");
+                    testPoint.stop();
+                }
+                flagTest = !flagTest;
+            }
+        });
 
         terminalModel.setTerminalModelEventListener(this);
         terminalModel.setGraphListener(this);
@@ -176,6 +193,7 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
         add(createHexToImitRequest);
         add(createRamDataFromRequest);
         add(graphButton);
+        add(graphTestButton);
 
 
     }

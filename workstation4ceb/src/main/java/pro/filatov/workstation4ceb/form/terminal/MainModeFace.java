@@ -303,6 +303,9 @@ public class MainModeFace extends JPanel implements IModeFace {
     }
 
 
+    @Override
+    public void refreshDataOnFaceTest() {
+    }
 
 
     private String getSensor(byte low_byte, byte high_byte){

@@ -29,6 +29,12 @@ public class GraphTextField extends JTextField{
         }
     }
 
+    public void  addPoint(Double valueGraph, PointData pointData){
+        if (flagEnable) {
+           pointData.addPointStruct(valueGraph, name, graphColor);
+        }
+    }
+
     public GraphTextField(String name, Color color) {
         this.name = name;
         this.graphColor = color;

@@ -184,4 +184,8 @@ public class UstpModeFace  extends JPanel implements IModeFace {
     public void refreshDataOnFace() {
 
     }
+
+    @Override
+    public void refreshDataOnFaceTest() {
+    }
 }
