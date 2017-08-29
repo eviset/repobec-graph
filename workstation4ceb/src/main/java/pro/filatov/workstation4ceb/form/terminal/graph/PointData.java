@@ -66,7 +66,9 @@ public class PointData {
         if (this.pointPackages.size() < buffer)
             this.pointPackages.addFirst(pointPackage);
         else {
-            this.pointPackages.removeLast();
+            while (pointPackages.size() >= buffer) {
+                this.pointPackages.removeLast();
+            }
             this.pointPackages.addFirst(pointPackage);
         }
     }
