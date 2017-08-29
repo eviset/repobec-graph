@@ -92,18 +92,24 @@ public class UartModel {
 
                 try {
                     if(ftdiDevice == null){
-                        openFTDI();
+                        //openFTDI();
                     }else if(curUsbDevice.isConnected()){
 
                     }
                     boolean flag = true;
                     System.out.println("PC->CEB: " + PacketHelper.convPacketToHexString(packetForSending, " "));
                     packetReceived = null;
-                    byte[]response = null;
+                    byte[]response =  {0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F, 0x0F,0x0F};
                     while(flag) {
-                        ftdiDevice.write(packetForSending);
+                        //ftdiDevice.write(packetForSending);
                         sleep(20);
-                        response = ftdiDevice.read();
+                        //response = ftdiDevice.read();
+
+
+                        for (int i = 0; i < 40; i++) {
+                            response[i] = (byte) 0x0F;
+                        }
+
                         if(response == null | response.length == 0){
                             System.out.println("No response from CEB (BOX)! ");
                             break;
@@ -119,9 +125,9 @@ public class UartModel {
                 }catch (UsbDisconnectedException e){
                     openFTDI();
                 }
-                catch (UsbException e) {
+                /*catch (UsbException e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
+                }*/ catch (InterruptedException e) {
                     e.printStackTrace();
                 }/*
             byte[] response = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};

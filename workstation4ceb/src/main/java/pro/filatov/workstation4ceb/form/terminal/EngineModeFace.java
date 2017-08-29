@@ -591,6 +591,8 @@ public class EngineModeFace extends JPanel implements IModeFace {
         cosGO.addPoint(Model.testResp[1]);
         sinTO.addPoint(Model.testResp[2]);
         cosTO.addPoint(Model.testResp[3]);
+
+        fhvGO.setText(Integer.toString(Model.pointData.getSize()));
     }
 
     @Override
