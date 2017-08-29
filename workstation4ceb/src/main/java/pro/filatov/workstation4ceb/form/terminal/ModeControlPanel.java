@@ -152,9 +152,9 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
             public void actionPerformed(ActionEvent e) {
                 x += 0.1;
                 Model.testResp[0] = Math.sin(x);
-                Model.testResp[1] = Math.cos(x)/1000;
-                Model.testResp[2] = Math.sin(x)/100+10000;
-                Model.testResp[3] = Math.cos(x)/100-10;
+                Model.testResp[1] = Math.cos(x);
+                Model.testResp[2] = Math.sin(x)/2;
+                Model.testResp[3] = Math.cos(x)/2 - 2;
                 Model.testResp[4] = Math.sin(x);
                 Model.testResp[5] = Math.cos(x)*1000;
                 Model.testResp[6] = Math.sin(x)/100+10;

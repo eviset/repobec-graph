@@ -30,8 +30,9 @@ public class GraphFrame implements GLEventListener{
     private boolean flagPopMatrix = false;
     private boolean flagSaveTimeX = true;
     private boolean flagScale = false;
+    private boolean flagCheck = true;
     private float timeX, timeXSave, timeStop, scaleWidth = 1.0f, scaleHeight = 1.0f, scaleOffsetWheelX = 0.0f, scaleOffsetWheelY = 0.0f;
-    private int width, height, delX, delY, scaleOffsetZeroX, scaleOffsetZeroY;
+    private int width, height, delX, delY;
     private long timeForX, timeZero, offsetDelX, offsetSize, offsetSizeZero, gmaMax = 0, pressedX, pressedY, pressedXZero, pressedYZero, rangeX, delXRange;
     private GL2 gl2_display;
     private float scaleX = 0.0f, scaleY = 0.0f, scaleOffsetY = 0.0f, scaleXZero = 0.0f, scaleYZero = 0.0f, scaleTime = 0.0f, timeOffset = 0.0f, xOffset = 0.0f, yOffset = 0.0f, scaleTimeOffset = 0.0f;
@@ -472,13 +473,15 @@ public class GraphFrame implements GLEventListener{
                 }
                     x0 = 1.7f*(-rangeX/2 + offsetDelX - offsetSize)/rangeX + 0.05f;
                     if (notches < 0) {
-                        //scaleOffsetWheelX = scaleOffsetZeroX*1.1f - scaleOffsetZeroX;
-                        //scaleOffsetWheelY = scaleOffsetZeroY*1.1f - scaleOffsetZeroY;
-                        scaleOffsetWheelX = 2.0f * ((e.getX() - (width / 2 + width * scaleXZero / 2)) * 2.0f - (e.getX() - (width / 2 + width * scaleXZero / 2))) / (width);
-                        scaleOffsetWheelY = 2.0f * ((e.getY() - (height / 2 + height * scaleYZero / 2)) * 2.0f - (e.getY() - (height / 2 + height * scaleYZero / 2))) / (height);
-                        scaleWidth = scaleWidth * 2.0f;
-                        scaleHeight = scaleHeight * 2.0f;
-                        timeX -= rangeX/1000.0f*((x0)/scaleWidth)/1.7f;
+                        if(flagCheck) {
+                            //scaleOffsetWheelX = scaleOffsetZeroX*1.1f - scaleOffsetZeroX;
+                            //scaleOffsetWheelY = scaleOffsetZeroY*1.1f - scaleOffsetZeroY;
+                            scaleOffsetWheelX = 2.0f * ((e.getX() - (width / 2 + width * scaleXZero / 2)) * 2.0f - (e.getX() - (width / 2 + width * scaleXZero / 2))) / (width);
+                            scaleOffsetWheelY = 2.0f * ((e.getY() - (height / 2 + height * scaleYZero / 2)) * 2.0f - (e.getY() - (height / 2 + height * scaleYZero / 2))) / (height);
+                            scaleWidth = scaleWidth * 2.0f;
+                            scaleHeight = scaleHeight * 2.0f;
+                            timeX -= rangeX / 1000.0f * ((x0) / scaleWidth) / 1.7f;
+                        }
                         //textOffsetZero -= rangeY*
                     } else {
                         scaleOffsetWheelX = 2.0f * ((e.getX() - (width / 2 + width * scaleXZero / 2)) / 2.0f - (e.getX() - (width / 2 + width * scaleXZero / 2))) / (width);
@@ -486,6 +489,7 @@ public class GraphFrame implements GLEventListener{
                         timeX += rangeX/1000.0f*((x0)/(scaleWidth))/1.7f;
                         scaleWidth = scaleWidth / 2.0f;
                         scaleHeight = scaleHeight / 2.0f;
+                        flagCheck = true;
                     }
                 flagGLCanvas = true;
             }
@@ -569,10 +573,10 @@ public class GraphFrame implements GLEventListener{
             }
         });
 
-        final Timer updateTimer = new Timer(50, new ActionListener() {
+        final Timer updateTimer = new Timer(40, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 timeZero = System.currentTimeMillis() - rangeX;
-                if ((long)(delXRange/scaleWidth) == 0) {flagStop = false;}
+                if ((long)(delXRange/scaleWidth) == 0) {flagCheck = false;}
                 else {
                     offsetSizeZero = timeZero % (long)(delXRange/scaleWidth);
                 }
