@@ -702,9 +702,6 @@ public class PreciseReductionFace extends JPanel implements IModeFace {
         this.revalidate();
     }
 
-    @Override
-    public void refreshDataOnFaceTest() {
-    }
 
     private String getSensor(byte low_byte, byte high_byte){
         return  PacketHelper.getSensor(low_byte, high_byte);
