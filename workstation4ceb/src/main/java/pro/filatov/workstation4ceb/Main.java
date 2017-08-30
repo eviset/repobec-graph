@@ -23,7 +23,7 @@ public class Main {
                 new Runnable() {
                     public void run() {
                         Model.init();
-                        AppFrameSmall.getInstance();
+                        AppFrame.getInstance();
                         //new AppFrame();
                     }
                 }

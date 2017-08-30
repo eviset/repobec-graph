@@ -248,7 +248,7 @@ public class SearchDialog extends JDialog implements FocusListener {
 		searchedText = searchTextField.getText();
 		int lenSearchedText = searchedText.length();
 		oldSearchedText = searchedText;
-		area = AppFrameSmall.getInstance().getAsmEditor().getMainText();
+		area = AppFrame.getInstance().getAsmEditor().getMainText();
 		area.getCaret().setSelectionVisible(true); // makes a text selection visible when it lost the focus
 		Highlighter highlighter = area.getHighlighter(); // text highlighter
 		Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(164, 255, 183, 255));

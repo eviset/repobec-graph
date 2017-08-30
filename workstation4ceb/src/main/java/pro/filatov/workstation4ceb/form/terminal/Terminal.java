@@ -45,7 +45,7 @@ public class Terminal extends JPanel {
 
 
         tabeIndexMap = new HashMap<Integer, CebExchangeMode>();
-/*
+
         tabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabbedPane.add(CebExchangeMode.USTP_MODE.getName(), new UstpModeFace());
         tabeIndexMap.put(0, CebExchangeMode.USTP_MODE);
@@ -63,12 +63,12 @@ public class Terminal extends JPanel {
         tabeIndexMap.put(6, CebExchangeMode.ENGINE_MODE);
         tabbedPane.add(CebExchangeMode.PRECISE_REDUCTION.getName(), new PreciseReductionFace());
         tabeIndexMap.put(7, CebExchangeMode.PRECISE_REDUCTION);
-*/
+/*
         tabbedPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabbedPane.add(CebExchangeMode.MAIN_MODE.getName(), new MainModeFace());
         tabeIndexMap.put(0, CebExchangeMode.MAIN_MODE);
         tabbedPane.add(CebExchangeMode.ENGINE_MODE.getName(), new EngineModeFace());
-        tabeIndexMap.put(1, CebExchangeMode.ENGINE_MODE);
+        tabeIndexMap.put(1, CebExchangeMode.ENGINE_MODE);*/
 
 
         tabbedPane.getModel().setSelectedIndex(getIndex(terminalModel.getCurrentExchangeMode()));
@@ -80,7 +80,7 @@ public class Terminal extends JPanel {
             }
         });
 
-/*
+
         JSplitPane splitPaneModesAndImitator = new JSplitPane();
 
         splitPaneModesAndImitator.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -92,9 +92,9 @@ public class Terminal extends JPanel {
         splitPaneModesAndImitator.setRightComponent(new MemoryEditor());
         add(splitPaneModesAndImitator);
 
-        add(splitPaneModesAndImitator, c);*/
+        add(splitPaneModesAndImitator, c);
 
-        add(tabbedPane, c);
+        //add(tabbedPane, c);
 
 
 
