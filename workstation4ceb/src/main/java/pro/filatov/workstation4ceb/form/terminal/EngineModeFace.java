@@ -580,22 +580,6 @@ public class EngineModeFace extends JPanel implements IModeFace {
     }
 
     @Override
-    public void refreshDataOnFaceTest(){
-        Model.pointData.addPointPackage();
-        sinGO.setText(Double.toString(Model.testResp[0]));
-        cosGO.setText(Double.toString(Model.testResp[1]));
-        sinTO.setText(Double.toString(Model.testResp[2]));
-        cosTO.setText(Double.toString(Model.testResp[3]));
-
-        sinGO.addPoint(Model.testResp[0]);
-        cosGO.addPoint(Model.testResp[1]);
-        sinTO.addPoint(Model.testResp[2]);
-        cosTO.addPoint(Model.testResp[3]);
-
-        fhvGO.setText(Integer.toString(Model.pointData.getSize()));
-    }
-
-    @Override
     public void refreshDataOnFace() {
        // Model.pointData.addPointPackage();
         byte[] response = exchangeModel.getResponse();

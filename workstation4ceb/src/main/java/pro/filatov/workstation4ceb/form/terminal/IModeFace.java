@@ -7,6 +7,5 @@ public interface IModeFace {
 
     byte [] createRequest();
     void refreshDataOnFace();
-    void refreshDataOnFaceTest();
 
 }

@@ -220,10 +220,6 @@ public class StepMode1Face extends JPanel implements IModeFace {
 
     }
 
-    @Override
-    public void refreshDataOnFaceTest() {
-    }
-
 
 
 }
