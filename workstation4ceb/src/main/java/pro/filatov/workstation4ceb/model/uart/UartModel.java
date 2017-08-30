@@ -20,7 +20,6 @@ import javax.usb3.utility.JNINativeLibraryLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 /**
  * Created by yuri.filatov on 01.08.2016.
  */

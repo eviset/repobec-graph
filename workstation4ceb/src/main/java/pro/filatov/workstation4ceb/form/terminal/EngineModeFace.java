@@ -597,7 +597,7 @@ public class EngineModeFace extends JPanel implements IModeFace {
 
     @Override
     public void refreshDataOnFace() {
-        Model.pointData.addPointPackage();
+       // Model.pointData.addPointPackage();
         byte[] response = exchangeModel.getResponse();
         if (response.length < 10) {
             System.out.println("Length response from CEB are SMALL ");
@@ -610,33 +610,46 @@ public class EngineModeFace extends JPanel implements IModeFace {
         sinTO.setText(getSensor(resp[6], resp[7]));
         cosTO.setText(getSensor(resp[8], resp[9]));
 
-
+        if (Model.flagQueue){
+            synchronized (Model.pointData){
+                try {
+                    Model.pointData.wait();
+                    Model.pointData.addPointPackage();
+                    sinGO.addPoint(getSensorDouble(resp[2], resp[3]));
+                    cosGO.addPoint(getSensorDouble(resp[4], resp[5]));
+                    sinTO.addPoint(getSensorDouble(resp[6], resp[7]));
+                    cosTO.addPoint(getSensorDouble(resp[8], resp[9]));
+                } catch (InterruptedException ex) {
+                    System.err.println("own:: Interrupted: "+ex.getMessage());
+                }
+            }
+        }/*
         sinGO.addPoint(getSensorDouble(resp[2], resp[3]));
         cosGO.addPoint(getSensorDouble(resp[4], resp[5]));
         sinTO.addPoint(getSensorDouble(resp[6], resp[7]));
-        cosTO.addPoint(getSensorDouble(resp[8], resp[9]));
+        cosTO.addPoint(getSensorDouble(resp[8], resp[9]));*/
 
         fhvGO.setText(getSensor(resp[10], resp[11]));
         fhvTO.setText(getSensor(resp[12], resp[13]));
         prev_go.setText(PacketHelper.getUnsignedWord12bit(resp[14], resp[15]));
-        error_go.setText(getSensor(resp[16], resp[17]));
+        error_go.setText(Integer.toString(Model.pointData.getSize()));
 
-        directAngle.setText(PacketHelper.getUnsignedWord16bit(resp[18], resp[19]));
-        resultAngle.setText(PacketHelper.getUnsignedWord16bit(resp[20], resp[21]));
-        calcUq.setText(PacketHelper.getUnsignedWord12bit(resp[22], resp[23]));
-        calcUd.setText(PacketHelper.getUnsignedWord12bit(resp[24], resp[25]));
+        //directAngle.setText(PacketHelper.getUnsignedWord16bit(resp[18], resp[19]));
+        //resultAngle.setText(PacketHelper.getUnsignedWord16bit(resp[20], resp[21]));
+        //calcUq.setText(PacketHelper.getUnsignedWord12bit(resp[22], resp[23]));
+        //calcUd.setText(PacketHelper.getUnsignedWord12bit(resp[24], resp[25]));
 
 
-        angle19bit.setText(PacketHelper.getAngle19(resp[26], resp[27], resp[28]));
+        //angle19bit.setText(PacketHelper.getAngle19(resp[26], resp[27], resp[28]));
 
-        result_calc_uq.setText(getSensor(resp[30], resp[31]));
+        //result_calc_uq.setText(getSensor(resp[30], resp[31]));
 
-        speedTethaTextField.setText(getSensor(resp[32], resp[33]));
+        //speedTethaTextField.setText(getSensor(resp[32], resp[33]));
 
         byte modes = resp[2];
 
-        errorSpeedIndicatorUmrk.refresh(PacketHelper.getBitFromByte(resp[24], 0));
-        errorSpeedIndicatorSS.refresh(PacketHelper.getBitFromByte(resp[24], 1));
+        //errorSpeedIndicatorUmrk.refresh(PacketHelper.getBitFromByte(resp[24], 0));
+        //errorSpeedIndicatorSS.refresh(PacketHelper.getBitFromByte(resp[24], 1));
 
         this.repaint();
         this.revalidate();

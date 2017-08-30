@@ -8,8 +8,8 @@ import javax.media.opengl.*;
 import javax.media.opengl.awt.GLCanvas;
 import javax.swing.*;
 import com.jogamp.opengl.util.awt.TextRenderer;
-
-
+import com.jogamp.opengl.util.FPSAnimator;
+import java.lang.InterruptedException;
 
 import javax.swing.JFrame;
 import java.awt.*;
@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import pro.filatov.workstation4ceb.form.terminal.GridBagHelper;
+import pro.filatov.workstation4ceb.model.Model;
 
 public class GraphFrame implements GLEventListener{
     private PointData pointData;
@@ -90,6 +91,21 @@ public class GraphFrame implements GLEventListener{
     }
 
     public void display(GLAutoDrawable glAutoDrawable) {
+        timeZero = System.currentTimeMillis() - rangeX;
+        if ((long)(delXRange/scaleWidth) == 0) {flagCheck = false;}
+        else {
+            offsetSizeZero = timeZero % (long)(delXRange/scaleWidth);
+        }
+        if (offsetSizeZero < gmaMax) {
+            timeStop +=(float)rangeX/(delX*1000*scaleWidth);
+        }
+        gmaMax = offsetSizeZero;
+        if (!flagStop){
+            timeForX = timeZero;
+            pointData.setxZero(timeForX);
+            offsetSize = offsetSizeZero;
+            timeX = timeStop;
+        }
 
         gl2_display = glAutoDrawable.getGL().getGL2();
         gl2_display.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
@@ -186,6 +202,9 @@ public class GraphFrame implements GLEventListener{
         printLabel(width, height);
         while (labelList.size() != 0) {
             labelList.removeLast();
+        }
+        synchronized (Model.pointData){
+            Model.pointData.notify();
         }
         //scaleOffsetWheelX = 0.0f;
         //scaleOffsetWheelY = 0.0f;
@@ -591,7 +610,7 @@ public class GraphFrame implements GLEventListener{
                     offsetSize = offsetSizeZero;
                     timeX = timeStop;
                 }
-                glcanvas.display();
+                //glcanvas.display();
             }
         });
 
@@ -696,6 +715,7 @@ public class GraphFrame implements GLEventListener{
                 yOffset = 0;
                 timeOffset = 0;
                 flagStop = false;
+                Model.flagQueue = false;
                 glcanvas.destroy();
                 frame.setDefaultCloseOperation(frame.DISPOSE_ON_CLOSE);
             }
@@ -725,7 +745,9 @@ public class GraphFrame implements GLEventListener{
         //offsetDel = timeForX % delXRange;
         changeRange();
         //offsetDel = timeForX % delXRange;
-        updateTimer.start();
+        //updateTimer.start();
+        final FPSAnimator animator = new FPSAnimator(glcanvas, 300,true);
+        animator.start();
     }
 /*
     public static void main(String[] args) {

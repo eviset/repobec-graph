@@ -134,14 +134,17 @@ public class ModeControlPanel extends JPanel  implements TerminalModelEventListe
         graphButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(graphButton.isSelected()){
+                if(graphButton.isSelected()) {
                     //creating and showing this application's GUI.
-                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            graphFrame = new GraphFrame(Model.pointData, 5000, 10);
-                        }
-                    });
-                    //graphFrame = new GraphFrame(Model.pointData, 5000, 10);
+                    if (!Model.flagQueue) {
+                        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                Model.flagQueue = true;
+                                graphFrame = new GraphFrame(Model.pointData, 5000, 10);
+                            }
+                        });
+                        //graphFrame = new GraphFrame(Model.pointData, 5000, 10);
+                    }
                 }
 
             }

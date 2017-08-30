@@ -26,6 +26,7 @@ public class Model {
     public static TerminalModel terminalModel = new TerminalModel();
     public static ExchangeModel exchangeModel = new ExchangeModel();
     public static PointData pointData = new PointData(400);
+    public static boolean flagQueue = false;
     public static Double[] testResp = {0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d, 0.0d};
 
 
